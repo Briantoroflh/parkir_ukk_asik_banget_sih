@@ -10,7 +10,7 @@
         "projectUniqueName": "D:\\ProjectAseli\\ParkirUKK\\backend\\backend.csproj",
         "projectName": "backend",
         "projectPath": "D:\\ProjectAseli\\ParkirUKK\\backend\\backend.csproj",
-        "packagesPath": "C:\\Users\\andri\\.nuget\\packages\\",
+        "packagesPath": "D:\\NuGet\\packages",
         "outputPath": "D:\\ProjectAseli\\ParkirUKK\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
@@ -50,9 +50,31 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.72, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[9.0.10, )"
+            },
+            "Microsoft.Data.SqlClient": {
+              "target": "Package",
+              "version": "[6.1.4, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Pomelo.EntityFrameworkCore.MySql": {
+              "target": "Package",
+              "version": "[9.0.0, )"
             }
           },
           "imports": [
