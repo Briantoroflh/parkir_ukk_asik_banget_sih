@@ -55,11 +55,14 @@ namespace backend.Controllers
             {
                 if (verifyHashPassword)
                 {
+                    
+
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.NameIdentifier, result.id.ToString()),
                         new Claim(ClaimTypes.Email, result.email),
-                        new Claim("name", result.name),
+                        new Claim(ClaimTypes.Name, result.name),
+                        new Claim(ClaimTypes.Role, result.role_id.ToString())
                     };
 
                     var token = _jwt.CreateToken(claims);

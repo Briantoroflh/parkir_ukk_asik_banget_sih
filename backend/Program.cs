@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using backend.Helpers;
+using backend.Services.extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 string jwtKey = builder.Configuration["Jwt:Key"];
@@ -61,6 +62,10 @@ if (app.Environment.IsDevelopment())
         options.DocumentPath = "/openapi/v1.json";
     });
 }
+
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/role"), appBuilder =>{appBuilder.UseRole("Admin");});
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/permission"), appBuilder =>{appBuilder.UseRole("Admin");});
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/role-permission"), appBuilder =>{appBuilder.UseRole("Admin");});
 
 app.MapControllers();
 
