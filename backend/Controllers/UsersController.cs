@@ -25,7 +25,7 @@ namespace backend.Controllers
         {
             _config = configuration.GetConnectionString("DefaultConnection");
             _db = db;
-            _jwt = jwt;  
+            _jwt = jwt;
         }
 
         [HttpPost("login")]
@@ -81,21 +81,73 @@ namespace backend.Controllers
             var query = $"SELECT * FROM users WHERE id = {id}";
             var result = await _db.ToSingleModel<Users>(_config, query);
 
-            if(result != null)
+            if (result != null)
             {
                 return Ok(new
                 {
-                   status = true,
-                   message = "Data ditemukan!",
-                   data = result 
+                    status = true,
+                    message = "Data ditemukan!",
+                    data = result
                 });
             }
             else
             {
                 return NotFound(new
                 {
-                   status = false,
-                   message = $"Data dengan id {id} tidak ditemukan!" 
+                    status = false,
+                    message = $"Data dengan id {id} tidak ditemukan!"
+                });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("update-user/{id}")]
+        public async Task<ActionResult<Users>> UpdateUser(int id, [FromBody] UserUpdateDto users)
+        {
+            var existingUser = $"SELECT id FORM users WHERE id = {id}";
+            var existsUser = await _db.ToSingleModel<Users>(_config, existingUser);
+
+            if (existsUser != null)
+            {
+                var existingRole = $"SELECT * FROM roles WHERE id = {users.role_id}";
+                var existsRole = await _db.ToSingleModel<Users>(_config, existingRole);
+
+                if(existsRole == null)
+                {
+                    return NotFound(new
+                    {
+                        status = false,
+                        message = "Role tidak ditemukan!"
+                    });
+                }
+
+                var query = $"UPDATE users SET name = '{users.name}', email = '{users.email}', role_id = '{users.role_id}'";
+                var result = await _db.ExecuteQuery(_config, query);
+
+                if (result > 0)
+                {
+                    return Ok(new
+                    {
+                        status = true,
+                        message = $"Data berhasil di update!",
+                        data = result
+                    });
+                }
+                else
+                {
+                    return StatusCode(500, new
+                    {
+                        status = false,
+                        message = "Terjadi kesalahan!"
+                    });
+                }
+            }
+            else
+            {
+                return NotFound(new
+                {
+                    status = false,
+                    message = $"data dengan id {id} tidak ditemukan!"
                 });
             }
         }
@@ -111,7 +163,7 @@ namespace backend.Controllers
             var verifyRole = $"SELECT id FROM roles WHERE id = {users.role_id}";
             var resVerifyRole = await DB.ToSingleModel<Role>(_config, verifyRole);
 
-            if(resVerifyRole == null)
+            if (resVerifyRole == null)
             {
                 return StatusCode(404, new
                 {
@@ -123,7 +175,7 @@ namespace backend.Controllers
             var query = $"INSERT INTO users (name, email, password_hash, is_active, role_id, created_at) VALUES ('{users.name}','{users.email}','{password}', true, '{users.role_id}', NOW())";
             var result = await DB.ExecuteQuery(_config, query);
 
-            if(result > 0)
+            if (result > 0)
             {
                 return Ok(new
                 {
