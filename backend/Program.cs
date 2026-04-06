@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 string jwtKey = builder.Configuration["Jwt:Key"];
 string jwtIssuer = builder.Configuration["Jwt:Issuer"];
 string jwtAudience = builder.Configuration["Jwt:Audience"];
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") !;
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 
 if (string.IsNullOrEmpty(jwtKey))
 {
@@ -23,6 +23,8 @@ if (string.IsNullOrEmpty(jwtKey))
 builder.Services.AddOpenApi();
 builder.Services.AddTransient<DBHelper>();
 builder.Services.AddTransient<JwtHelper>();
+builder.Services.AddTransient<backend.Services.logging.UserLoginLog>();
+builder.Services.AddTransient<backend.Services.sessions.UserSessions>();
 builder.Services.AddTransient<IDbConnection>((sp) => new SqlConnection(connectionString));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
@@ -56,7 +58,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwaggerUi(options =>
     {
-        options.DocumentPath = "/openapi/v1.json"; 
+        options.DocumentPath = "/openapi/v1.json";
     });
 }
 

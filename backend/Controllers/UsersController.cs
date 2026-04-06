@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using backend.Services.logging;
+using backend.Services.sessions;
 
 namespace backend.Controllers
 {
@@ -20,12 +22,16 @@ namespace backend.Controllers
         private readonly string _config;
         private readonly DBHelper _db;
         private readonly JwtHelper _jwt;
+        private readonly UserLoginLog _loginLog;
+        private readonly UserSessions _userSession;
 
-        public UsersController(IConfiguration configuration, DBHelper db, JwtHelper jwt)
+        public UsersController(IConfiguration configuration, DBHelper db, JwtHelper jwt, UserLoginLog loginLog, UserSessions userSession)
         {
             _config = configuration.GetConnectionString("DefaultConnection");
             _db = db;
             _jwt = jwt;
+            _loginLog = loginLog;
+            _userSession = userSession;
         }
 
         [HttpPost("login")]
@@ -45,31 +51,57 @@ namespace backend.Controllers
 
             var verifyHashPassword = BCrypt.Net.BCrypt.Verify(users.password, result.password_hash);
 
-            if (verifyHashPassword)
+            try
             {
-                var claims = new List<Claim>
+                if (verifyHashPassword)
                 {
-                    new Claim(ClaimTypes.NameIdentifier, result.id.ToString()),
-                    new Claim(ClaimTypes.Email, result.email),
-                    new Claim("name", result.name),
-                };
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, result.id.ToString()),
+                        new Claim(ClaimTypes.Email, result.email),
+                        new Claim("name", result.name),
+                    };
 
-                var token = _jwt.CreateToken(claims);
+                    var token = _jwt.CreateToken(claims);
+                    var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+                    var device = Request.Headers["User-Agent"].ToString();
+                    var expiresAt = DateTime.UtcNow.AddHours(24);
 
-                return Ok(new
+                    var log = await _loginLog.LoggingLogin(result.id, ipAddress, device, 1, "success");
+                    var session = await _userSession.CreateSession(result.id, token, ipAddress, device, expiresAt);
+
+                    return Ok(new
+                    {
+                        status = true,
+                        message = $"Login Berhasil. Halo, {result.name}",
+                        token = token,
+                        data = result
+                    });
+                }
+                else
                 {
-                    status = true,
-                    message = $"Login Berhasil. Halo, {result.name}",
-                    token = token,
-                    data = result
-                });
+                    var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+                    var device = Request.Headers["User-Agent"].ToString();
+
+                    var log = await _loginLog.LoggingLogin(result.id, ipAddress, device, 0, "Password tidak sesuai");
+                    return Unauthorized(new
+                    {
+                        status = false,
+                        message = "Password anda tidak sesuai!"
+                    });
+                }
             }
-            else
+            catch (Exception ex)
             {
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+                var device = Request.Headers["User-Agent"].ToString();
+
+                var log = await _loginLog.LoggingLogin(result.id, ipAddress, device, 0, ex.Message);
+
                 return StatusCode(500, new
                 {
                     status = false,
-                    message = "Terjadi kesalahan!"
+                    message = "Terjadi kesalahan server: " + ex.Message
                 });
             }
         }
@@ -112,7 +144,7 @@ namespace backend.Controllers
                 var existingRole = $"SELECT * FROM roles WHERE id = {users.role_id}";
                 var existsRole = await _db.ToSingleModel<Users>(_config, existingRole);
 
-                if(existsRole == null)
+                if (existsRole == null)
                 {
                     return NotFound(new
                     {
@@ -152,16 +184,13 @@ namespace backend.Controllers
             }
         }
 
-        [Authorize]
         [HttpPost("create-user")]
         public async Task<ActionResult<Users>> CreateUser([FromBody] UserCreateDto users)
         {
-            DBHelper DB = new DBHelper();
-
             string password = BCrypt.Net.BCrypt.HashPassword(users.password_hash);
 
             var verifyRole = $"SELECT id FROM roles WHERE id = {users.role_id}";
-            var resVerifyRole = await DB.ToSingleModel<Role>(_config, verifyRole);
+            var resVerifyRole = await _db.ToSingleModel<Role>(_config, verifyRole);
 
             if (resVerifyRole == null)
             {
@@ -173,7 +202,7 @@ namespace backend.Controllers
             }
 
             var query = $"INSERT INTO users (name, email, password_hash, is_active, role_id, created_at) VALUES ('{users.name}','{users.email}','{password}', true, '{users.role_id}', NOW())";
-            var result = await DB.ExecuteQuery(_config, query);
+            var result = await _db.ExecuteQuery(_config, query);
 
             if (result > 0)
             {
