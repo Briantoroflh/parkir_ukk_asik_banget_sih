@@ -105,6 +105,169 @@ namespace backend.Migrations
                     b.ToTable("audit_logs");
                 });
 
+            modelBuilder.Entity("backend.Models.Employee", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<DateTimeOffset>("created_at")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTimeOffset?>("deleted_at")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("role_id")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("updated_at")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("employees");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            created_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 160, DateTimeKind.Unspecified).AddTicks(4289), new TimeSpan(0, 0, 0, 0, 0)),
+                            name = "Budi Santoso",
+                            role_id = 3,
+                            updated_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 160, DateTimeKind.Unspecified).AddTicks(4705), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            id = 2,
+                            created_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 160, DateTimeKind.Unspecified).AddTicks(5550), new TimeSpan(0, 0, 0, 0, 0)),
+                            name = "Siti Nurhaliza",
+                            role_id = 3,
+                            updated_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 160, DateTimeKind.Unspecified).AddTicks(5551), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            id = 3,
+                            created_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 160, DateTimeKind.Unspecified).AddTicks(5605), new TimeSpan(0, 0, 0, 0, 0)),
+                            name = "Ahmad Wijaya",
+                            role_id = 3,
+                            updated_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 160, DateTimeKind.Unspecified).AddTicks(5605), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            id = 4,
+                            created_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 160, DateTimeKind.Unspecified).AddTicks(5610), new TimeSpan(0, 0, 0, 0, 0)),
+                            name = "Rina Kusuma",
+                            role_id = 4,
+                            updated_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 160, DateTimeKind.Unspecified).AddTicks(5611), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            id = 5,
+                            created_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 160, DateTimeKind.Unspecified).AddTicks(5615), new TimeSpan(0, 0, 0, 0, 0)),
+                            name = "Dedi Gunawan",
+                            role_id = 3,
+                            updated_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 160, DateTimeKind.Unspecified).AddTicks(5616), new TimeSpan(0, 0, 0, 0, 0))
+                        });
+                });
+
+            modelBuilder.Entity("backend.Models.EnteranceTracking", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<DateTime>("created_at")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("gate_id")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("gateid")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("in_at")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("out_at")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("rfid_card_id")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("rfidid")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ticket_id")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ticketid")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("gateid");
+
+                    b.HasIndex("rfidid");
+
+                    b.HasIndex("ticketid");
+
+                    b.ToTable("enterance_trackings");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            created_at = new DateTime(2026, 4, 13, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            gate_id = 1,
+                            in_at = new DateTime(2026, 4, 13, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            out_at = new DateTime(2026, 4, 13, 12, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            rfid_card_id = 1
+                        },
+                        new
+                        {
+                            id = 2,
+                            created_at = new DateTime(2026, 4, 13, 20, 44, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            gate_id = 3,
+                            in_at = new DateTime(2026, 4, 13, 20, 44, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            rfid_card_id = 2
+                        },
+                        new
+                        {
+                            id = 3,
+                            created_at = new DateTime(2026, 4, 13, 7, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            gate_id = 1,
+                            in_at = new DateTime(2026, 4, 13, 7, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            out_at = new DateTime(2026, 4, 13, 9, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            rfid_card_id = 3
+                        },
+                        new
+                        {
+                            id = 4,
+                            created_at = new DateTime(2026, 4, 12, 6, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            gate_id = 5,
+                            in_at = new DateTime(2026, 4, 12, 6, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            out_at = new DateTime(2026, 4, 12, 12, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            rfid_card_id = 4
+                        },
+                        new
+                        {
+                            id = 5,
+                            created_at = new DateTime(2026, 4, 11, 18, 59, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            gate_id = 4,
+                            in_at = new DateTime(2026, 4, 11, 18, 59, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            out_at = new DateTime(2026, 4, 12, 10, 44, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            rfid_card_id = 5
+                        });
+                });
+
             modelBuilder.Entity("backend.Models.FeeConfig", b =>
                 {
                     b.Property<int>("id")
@@ -152,6 +315,73 @@ namespace backend.Migrations
                     b.HasIndex("zone_id");
 
                     b.ToTable("fee_configs");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            base_fee = 10000,
+                            created_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            created_by = 1,
+                            effective_from = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            grace_period_minutes = 15,
+                            is_active = true,
+                            updated_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            vehicle_type_id = 2,
+                            zone_id = 1
+                        },
+                        new
+                        {
+                            id = 2,
+                            base_fee = 5000,
+                            created_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            created_by = 1,
+                            effective_from = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            grace_period_minutes = 10,
+                            is_active = true,
+                            updated_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            vehicle_type_id = 1,
+                            zone_id = 1
+                        },
+                        new
+                        {
+                            id = 3,
+                            base_fee = 20000,
+                            created_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            created_by = 1,
+                            effective_from = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            grace_period_minutes = 20,
+                            is_active = true,
+                            updated_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            vehicle_type_id = 2,
+                            zone_id = 5
+                        },
+                        new
+                        {
+                            id = 4,
+                            base_fee = 25000,
+                            created_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            created_by = 2,
+                            effective_from = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            grace_period_minutes = 30,
+                            is_active = true,
+                            updated_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            vehicle_type_id = 3,
+                            zone_id = 2
+                        },
+                        new
+                        {
+                            id = 5,
+                            base_fee = 20000,
+                            created_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            created_by = 2,
+                            effective_from = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            grace_period_minutes = 15,
+                            is_active = true,
+                            updated_at = new DateTimeOffset(new DateTime(2026, 4, 15, 3, 14, 56, 159, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)),
+                            vehicle_type_id = 4,
+                            zone_id = 3
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.FeeTier", b =>
@@ -182,6 +412,53 @@ namespace backend.Migrations
                     b.HasIndex("fee_config_id");
 
                     b.ToTable("fee_tiers");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            duration_minutes = 60,
+                            fee_amount = 10000,
+                            fee_config_id = 1,
+                            is_last_tier = true,
+                            tier_order = 1
+                        },
+                        new
+                        {
+                            id = 2,
+                            duration_minutes = 60,
+                            fee_amount = 5000,
+                            fee_config_id = 2,
+                            is_last_tier = true,
+                            tier_order = 1
+                        },
+                        new
+                        {
+                            id = 3,
+                            duration_minutes = 60,
+                            fee_amount = 20000,
+                            fee_config_id = 3,
+                            is_last_tier = true,
+                            tier_order = 1
+                        },
+                        new
+                        {
+                            id = 4,
+                            duration_minutes = 60,
+                            fee_amount = 25000,
+                            fee_config_id = 4,
+                            is_last_tier = true,
+                            tier_order = 1
+                        },
+                        new
+                        {
+                            id = 5,
+                            duration_minutes = 60,
+                            fee_amount = 20000,
+                            fee_config_id = 5,
+                            is_last_tier = true,
+                            tier_order = 1
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Gate", b =>
@@ -223,6 +500,68 @@ namespace backend.Migrations
                     b.HasKey("id");
 
                     b.ToTable("gates");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            created_at = new DateTime(2026, 3, 16, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            gate_type = "entrance",
+                            is_active = true,
+                            location_desc = "Main entrance gate Zona A",
+                            name = "Gate A1 - Entrance",
+                            updated_at = new DateTime(2026, 3, 16, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            zone_id = 1
+                        },
+                        new
+                        {
+                            id = 2,
+                            created_at = new DateTime(2026, 3, 16, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            gate_type = "exit",
+                            is_active = true,
+                            location_desc = "Main exit gate Zona A",
+                            name = "Gate A2 - Exit",
+                            updated_at = new DateTime(2026, 3, 21, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            zone_id = 1
+                        },
+                        new
+                        {
+                            id = 3,
+                            created_at = new DateTime(2026, 3, 26, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            gate_type = "entrance",
+                            is_active = true,
+                            location_desc = "Second floor entrance Zona B",
+                            name = "Gate B1 - Entrance",
+                            updated_at = new DateTime(2026, 3, 26, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            zone_id = 2
+                        },
+                        new
+                        {
+                            id = 4,
+                            created_at = new DateTime(2026, 3, 31, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            gate_type = "entrance",
+                            is_active = true,
+                            location_desc = "Third floor entrance Zona C",
+                            name = "Gate C1 - Entrance",
+                            updated_at = new DateTime(2026, 4, 5, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            zone_id = 3
+                        },
+                        new
+                        {
+                            id = 5,
+                            created_at = new DateTime(2026, 4, 10, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            gate_type = "entrance",
+                            is_active = true,
+                            location_desc = "Premium VIP entrance Zona E",
+                            name = "Gate E1 - VIP",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            zone_id = 5
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.GateDevice", b =>
@@ -257,6 +596,59 @@ namespace backend.Migrations
                     b.HasKey("id");
 
                     b.ToTable("gate_devices");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            device_type = "RFID_READER",
+                            gate_id = 1,
+                            las_ping_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            status = true,
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 2,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            device_type = "BARRIER_ARM",
+                            gate_id = 2,
+                            las_ping_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            status = true,
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 3,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            device_type = "RFID_READER",
+                            gate_id = 3,
+                            las_ping_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            status = true,
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 4,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            device_type = "BARRIER_ARM",
+                            error_message = "Connection timeout",
+                            gate_id = 4,
+                            las_ping_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            status = false,
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 5,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            device_type = "CAMERA",
+                            gate_id = 5,
+                            las_ping_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            status = true,
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.HolidayRate", b =>
@@ -310,6 +702,83 @@ namespace backend.Migrations
                     b.HasIndex("applies_to_zone_id");
 
                     b.ToTable("holiday_rates");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            applies_to_vehicle_type_id = 2,
+                            applies_to_zone_id = 1,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            date_aend = new DateTime(2026, 4, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            date_start = new DateTime(2026, 4, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            multiplier = 1.5f,
+                            name = "Lebaran 2026",
+                            override_fee = 0,
+                            rate_type = "multiplier",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 2,
+                            applies_to_vehicle_type_id = 1,
+                            applies_to_zone_id = 5,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            date_aend = new DateTime(2026, 1, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            date_start = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            multiplier = 1f,
+                            name = "Tahun Baru",
+                            override_fee = 25000,
+                            rate_type = "override",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 3,
+                            applies_to_vehicle_type_id = 3,
+                            applies_to_zone_id = 2,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            date_aend = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            date_start = new DateTime(2026, 4, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            multiplier = 2f,
+                            name = "Hari Raya",
+                            override_fee = 0,
+                            rate_type = "multiplier",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 4,
+                            applies_to_vehicle_type_id = 2,
+                            applies_to_zone_id = 5,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            date_aend = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            date_start = new DateTime(2025, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            multiplier = 1f,
+                            name = "Malam Tahun Baru",
+                            override_fee = 50000,
+                            rate_type = "override",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 5,
+                            applies_to_vehicle_type_id = 4,
+                            applies_to_zone_id = 3,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            date_aend = new DateTime(2026, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            date_start = new DateTime(2026, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            multiplier = 1.3f,
+                            name = "Libur Nasional",
+                            override_fee = 0,
+                            rate_type = "multiplier",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.MidtransCallback", b =>
@@ -578,6 +1047,43 @@ namespace backend.Migrations
                         .IsUnique();
 
                     b.ToTable("permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 153, DateTimeKind.Local).AddTicks(3998),
+                            description = "View permissions",
+                            node = "permission.view"
+                        },
+                        new
+                        {
+                            id = 2,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 153, DateTimeKind.Local).AddTicks(4442),
+                            description = "Create permissions",
+                            node = "permission.create"
+                        },
+                        new
+                        {
+                            id = 3,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 153, DateTimeKind.Local).AddTicks(4445),
+                            description = "Edit permissions",
+                            node = "permission.edit"
+                        },
+                        new
+                        {
+                            id = 4,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 153, DateTimeKind.Local).AddTicks(4448),
+                            description = "Delete permissions",
+                            node = "permission.delete"
+                        },
+                        new
+                        {
+                            id = 5,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 153, DateTimeKind.Local).AddTicks(4451),
+                            description = "Manage zones",
+                            node = "zone.manage"
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Refund", b =>
@@ -654,22 +1160,78 @@ namespace backend.Migrations
                     b.Property<DateTime>("created_at")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime>("deactivated_at")
+                    b.Property<DateTime?>("deactivated_at")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("deactivated_by")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("is_active")
+                    b.Property<int?>("employee_id")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("is_guest")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("vehicle_id")
+                    b.Property<bool?>("is_member")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int?>("vehicle_id")
                         .HasColumnType("int");
 
                     b.HasKey("id");
 
+                    b.HasIndex("employee_id");
+
+                    b.HasIndex("vehicle_id");
+
                     b.ToTable("rfid_cards");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            card_uid = "08D4B2C0",
+                            created_at = new DateTime(2026, 3, 16, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            is_guest = false,
+                            is_member = true,
+                            vehicle_id = 1
+                        },
+                        new
+                        {
+                            id = 2,
+                            card_uid = "08D4B2C1",
+                            created_at = new DateTime(2026, 3, 26, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            is_guest = false,
+                            is_member = true,
+                            vehicle_id = 2
+                        },
+                        new
+                        {
+                            id = 3,
+                            card_uid = "08D4B2C2",
+                            created_at = new DateTime(2026, 3, 31, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            is_guest = true,
+                            is_member = false,
+                            vehicle_id = 3
+                        },
+                        new
+                        {
+                            id = 4,
+                            card_uid = "08D4B2C3",
+                            created_at = new DateTime(2026, 4, 5, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            employee_id = 1,
+                            is_guest = false,
+                            is_member = false
+                        },
+                        new
+                        {
+                            id = 5,
+                            card_uid = "08D4B2C4",
+                            created_at = new DateTime(2026, 4, 10, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            employee_id = 2,
+                            is_guest = false,
+                            is_member = false
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Role", b =>
@@ -704,6 +1266,58 @@ namespace backend.Migrations
                     b.HasKey("id");
 
                     b.ToTable("roles");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            deleted_at = new DateTime(2026, 4, 15, 10, 14, 56, 155, DateTimeKind.Local).AddTicks(2537),
+                            description = "Full access to all system features",
+                            name = "Super Admin",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 2,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            deleted_at = new DateTime(2026, 4, 15, 10, 14, 56, 155, DateTimeKind.Local).AddTicks(5313),
+                            description = "Administrative access",
+                            name = "Admin",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 3,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            deleted_at = new DateTime(2026, 4, 15, 10, 14, 56, 155, DateTimeKind.Local).AddTicks(5319),
+                            description = "Gate and parking operator",
+                            name = "Operator",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 4,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            deleted_at = new DateTime(2026, 4, 15, 10, 14, 56, 155, DateTimeKind.Local).AddTicks(5385),
+                            description = "Zone manager and reporting",
+                            name = "Manager",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 5,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            deleted_at = new DateTime(2026, 4, 15, 10, 14, 56, 155, DateTimeKind.Local).AddTicks(5389),
+                            description = "View-only access",
+                            name = "Viewer",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.RolePermission", b =>
@@ -734,6 +1348,80 @@ namespace backend.Migrations
                     b.HasIndex("role_id");
 
                     b.ToTable("role_permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            granted_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            granted_by = "System",
+                            permission_id = 1,
+                            role_id = 1
+                        },
+                        new
+                        {
+                            id = 2,
+                            granted_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            granted_by = "System",
+                            permission_id = 2,
+                            role_id = 1
+                        },
+                        new
+                        {
+                            id = 3,
+                            granted_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            granted_by = "System",
+                            permission_id = 3,
+                            role_id = 1
+                        },
+                        new
+                        {
+                            id = 4,
+                            granted_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            granted_by = "System",
+                            permission_id = 4,
+                            role_id = 1
+                        },
+                        new
+                        {
+                            id = 5,
+                            granted_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            granted_by = "System",
+                            permission_id = 5,
+                            role_id = 1
+                        });
+                });
+
+            modelBuilder.Entity("backend.Models.TicketParking", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("barcode")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("created_at")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("uniq_id")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int>("vehicle_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("uniq_id")
+                        .IsUnique();
+
+                    b.HasIndex("vehicle_id");
+
+                    b.ToTable("ticket_parkings");
                 });
 
             modelBuilder.Entity("backend.Models.Transaction", b =>
@@ -771,29 +1459,31 @@ namespace backend.Migrations
                     b.Property<DateTime?>("exit_at")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("exit_gate_id")
+                    b.Property<int?>("exit_gate_id")
                         .HasColumnType("int");
 
                     b.Property<string>("exit_method")
+                        .IsRequired()
                         .HasMaxLength(16)
                         .HasColumnType("varchar(16)");
 
-                    b.Property<int>("fee_config_id")
+                    b.Property<int?>("fee_config_id")
                         .HasColumnType("int");
 
-                    b.Property<int>("holiday_rate_id")
+                    b.Property<int?>("holiday_rate_id")
                         .HasColumnType("int");
 
-                    b.Property<bool>("receipt_printed")
+                    b.Property<bool?>("receipt_printed")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime?>("receipt_printed_at")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("rfid_card_id")
+                    b.Property<int?>("rfid_card_id")
                         .HasColumnType("int");
 
                     b.Property<string>("status")
+                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
@@ -805,10 +1495,10 @@ namespace backend.Migrations
                     b.Property<DateTime?>("updated_at")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("vehicle_id")
+                    b.Property<int?>("vehicle_id")
                         .HasColumnType("int");
 
-                    b.Property<int>("zone_id")
+                    b.Property<int?>("zone_id")
                         .HasColumnType("int");
 
                     b.HasKey("id");
@@ -994,6 +1684,68 @@ namespace backend.Migrations
                     b.HasIndex("role_id");
 
                     b.ToTable("users");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            deleted_at = new DateTime(2026, 4, 15, 10, 14, 56, 155, DateTimeKind.Local).AddTicks(7283),
+                            email = "superadmin@parkir.local",
+                            is_active = true,
+                            name = "Super Administrator",
+                            password_hash = "$2a$11$abc123hash",
+                            role_id = 1,
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 2,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            deleted_at = new DateTime(2026, 4, 15, 10, 14, 56, 156, DateTimeKind.Local).AddTicks(406),
+                            email = "admin@parkir.local",
+                            is_active = true,
+                            name = "Admin User",
+                            password_hash = "$2a$11$def456hash",
+                            role_id = 2,
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 3,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            deleted_at = new DateTime(2026, 4, 15, 10, 14, 56, 156, DateTimeKind.Local).AddTicks(413),
+                            email = "operator1@parkir.local",
+                            is_active = true,
+                            name = "Gate Operator 1",
+                            password_hash = "$2a$11$ghi789hash",
+                            role_id = 3,
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 4,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            deleted_at = new DateTime(2026, 4, 15, 10, 14, 56, 156, DateTimeKind.Local).AddTicks(418),
+                            email = "manager@parkir.local",
+                            is_active = true,
+                            name = "Zone Manager",
+                            password_hash = "$2a$11$jkl012hash",
+                            role_id = 4,
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 5,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            deleted_at = new DateTime(2026, 4, 15, 10, 14, 56, 156, DateTimeKind.Local).AddTicks(422),
+                            email = "viewer@parkir.local",
+                            is_active = true,
+                            name = "Viewer User",
+                            password_hash = "$2a$11$mno345hash",
+                            role_id = 5,
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Vehicle", b =>
@@ -1030,6 +1782,58 @@ namespace backend.Migrations
                     b.HasIndex("vehicle_type_id");
 
                     b.ToTable("vehicles");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            notes = "Red Sedan",
+                            plate_number = "B 1234 ABC",
+                            source = "Manual",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            vehicle_type_id = 2
+                        },
+                        new
+                        {
+                            id = 2,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            notes = "Black Motorcycle",
+                            plate_number = "B 5678 XYZ",
+                            source = "RFID",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            vehicle_type_id = 1
+                        },
+                        new
+                        {
+                            id = 3,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            notes = "White Bus",
+                            plate_number = "B 9012 DEF",
+                            source = "Manual",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            vehicle_type_id = 3
+                        },
+                        new
+                        {
+                            id = 4,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            notes = "Blue Truck",
+                            plate_number = "B 3456 GHI",
+                            source = "OCR",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            vehicle_type_id = 4
+                        },
+                        new
+                        {
+                            id = 5,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            notes = "Silver Car",
+                            plate_number = "B 7890 JKL",
+                            source = "Manual",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            vehicle_type_id = 2
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.VehicleTypes", b =>
@@ -1057,6 +1861,48 @@ namespace backend.Migrations
                     b.HasKey("id");
 
                     b.ToTable("vehicle_types");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            description = "Motorcycle/Scooter",
+                            minimum_fee = 5000,
+                            name = "Motor"
+                        },
+                        new
+                        {
+                            id = 2,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            description = "Car/Sedan",
+                            minimum_fee = 10000,
+                            name = "Mobil"
+                        },
+                        new
+                        {
+                            id = 3,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            description = "Bus/Large Vehicle",
+                            minimum_fee = 25000,
+                            name = "Bus"
+                        },
+                        new
+                        {
+                            id = 4,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            description = "Truck/Pickup",
+                            minimum_fee = 20000,
+                            name = "Truck"
+                        },
+                        new
+                        {
+                            id = 5,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            description = "Special vehicles",
+                            minimum_fee = 15000,
+                            name = "Kendaraan Khusus"
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Zone", b =>
@@ -1097,6 +1943,89 @@ namespace backend.Migrations
                     b.HasKey("id");
 
                     b.ToTable("zones");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            additional_fee = 0,
+                            capacity = 100,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            description = "Ground floor parking zone",
+                            is_active = true,
+                            name = "Zona A - Lantai 1",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 2,
+                            additional_fee = 2000,
+                            capacity = 150,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            description = "Second floor parking zone",
+                            is_active = true,
+                            name = "Zona B - Lantai 2",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 3,
+                            additional_fee = 3000,
+                            capacity = 120,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            description = "Third floor parking zone",
+                            is_active = true,
+                            name = "Zona C - Lantai 3",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 4,
+                            additional_fee = 0,
+                            capacity = 200,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            description = "Outdoor parking area",
+                            is_active = true,
+                            name = "Zona D - Outdoor",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        },
+                        new
+                        {
+                            id = 5,
+                            additional_fee = 10000,
+                            capacity = 50,
+                            created_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360),
+                            created_by = "System",
+                            description = "VIP parking zone with premium services",
+                            is_active = true,
+                            name = "Zona E - VIP",
+                            updated_at = new DateTime(2026, 4, 15, 10, 14, 56, 154, DateTimeKind.Local).AddTicks(9360)
+                        });
+                });
+
+            modelBuilder.Entity("backend.Models.EnteranceTracking", b =>
+                {
+                    b.HasOne("backend.Models.Gate", "gate")
+                        .WithMany()
+                        .HasForeignKey("gateid");
+
+                    b.HasOne("backend.Models.RfidCard", "rfid")
+                        .WithMany()
+                        .HasForeignKey("rfidid");
+
+                    b.HasOne("backend.Models.TicketParking", "ticket")
+                        .WithMany()
+                        .HasForeignKey("ticketid");
+
+                    b.Navigation("gate");
+
+                    b.Navigation("rfid");
+
+                    b.Navigation("ticket");
                 });
 
             modelBuilder.Entity("backend.Models.FeeConfig", b =>
@@ -1221,6 +2150,21 @@ namespace backend.Migrations
                     b.Navigation("Transaction");
                 });
 
+            modelBuilder.Entity("backend.Models.RfidCard", b =>
+                {
+                    b.HasOne("backend.Models.Employee", "employee")
+                        .WithMany()
+                        .HasForeignKey("employee_id");
+
+                    b.HasOne("backend.Models.Vehicle", "vehicle")
+                        .WithMany()
+                        .HasForeignKey("vehicle_id");
+
+                    b.Navigation("employee");
+
+                    b.Navigation("vehicle");
+                });
+
             modelBuilder.Entity("backend.Models.RolePermission", b =>
                 {
                     b.HasOne("backend.Models.Permission", "Permissions")
@@ -1240,6 +2184,17 @@ namespace backend.Migrations
                     b.Navigation("Roles");
                 });
 
+            modelBuilder.Entity("backend.Models.TicketParking", b =>
+                {
+                    b.HasOne("backend.Models.Vehicle", "vehicle")
+                        .WithMany()
+                        .HasForeignKey("vehicle_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("vehicle");
+                });
+
             modelBuilder.Entity("backend.Models.Transaction", b =>
                 {
                     b.HasOne("backend.Models.Gate", "EntryGate")
@@ -1250,39 +2205,27 @@ namespace backend.Migrations
 
                     b.HasOne("backend.Models.Gate", "ExitGate")
                         .WithMany()
-                        .HasForeignKey("exit_gate_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("exit_gate_id");
 
                     b.HasOne("backend.Models.FeeConfig", "FeeConfig")
                         .WithMany()
-                        .HasForeignKey("fee_config_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("fee_config_id");
 
                     b.HasOne("backend.Models.HolidayRate", "HolidayRate")
                         .WithMany()
-                        .HasForeignKey("holiday_rate_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("holiday_rate_id");
 
                     b.HasOne("backend.Models.RfidCard", "RfidCard")
                         .WithMany()
-                        .HasForeignKey("rfid_card_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("rfid_card_id");
 
                     b.HasOne("backend.Models.Vehicle", "Vehicle")
                         .WithMany()
-                        .HasForeignKey("vehicle_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("vehicle_id");
 
                     b.HasOne("backend.Models.Zone", "Zone")
                         .WithMany()
-                        .HasForeignKey("zone_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("zone_id");
 
                     b.Navigation("EntryGate");
 

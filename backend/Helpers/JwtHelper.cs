@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using DotNetEnv;
 using Microsoft.IdentityModel.Tokens;
 
 namespace backend.Helpers
@@ -20,13 +21,16 @@ namespace backend.Helpers
 
         public string CreateToken(IEnumerable<Claim> claims)
         {
-            var jwtSettings = _config.GetSection("Jwt");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
+            Env.Load();
+            var jwtkey = Environment.GetEnvironmentVariable("JWT_KEY");
+            var jwtissuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+            var jwtaudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtkey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: jwtSettings["Issuer"],
-                audience: jwtSettings["Audience"],
+                issuer: jwtissuer,
+                audience: jwtaudience,
                 claims: claims,
                 expires: DateTime.Now.AddDays(7),
                 signingCredentials: creds

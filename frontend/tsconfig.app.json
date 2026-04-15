@@ -22,7 +22,12 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      // add ./src from baseUrl
+      "@app/*": ["./src/app/*"],
+      "@lib/*": ["./src/lib/*"]
+    }
   },
   "include": ["src"]
 }

@@ -11,54 +11,34 @@ namespace backend.Models
     {
         [Key]
         public int id { get; set; }
-
         [StringLength(50)]
         [Required]
         public string transaction_code { get; set; }
-
         [StringLength(16)]
         public string? entry_method { get; set; }
-
         [StringLength(255)]
         [Required]
-        public string entry_qr_code { get; set; }
-
+        public string? entry_qr_code { get; set; }
         public DateTime? entry_at { get; set; }
-
         [Column(TypeName = "text")]
         public string? entry_photo_url { get; set; }
-
         public int entry_gate_id { get; set; }
-
-        public int exit_gate_id { get; set; }
-
+        public int? exit_gate_id { get; set; }
         [StringLength(16)]
-        public string? exit_method { get; set; }
-
+        public string exit_method { get; set; }
         public DateTime? exit_at { get; set; }
-
         public int calculated_fee { get; set; }
-
         [StringLength(20)]
-        public string? status { get; set; }
-
-        public bool receipt_printed { get; set; }
-
+        public string status { get; set; }
+        public bool? receipt_printed { get; set; }
         public DateTime? receipt_printed_at { get; set; }
-
+        public int? holiday_rate_id { get; set; }
+        public int? zone_id { get; set; }
+        public int? vehicle_id { get; set; }
+        public int? rfid_card_id { get; set; }
+        public int? fee_config_id { get; set; }
         public DateTime created_at { get; set; } = DateTime.Now;
-
-        public int holiday_rate_id { get; set; }
-
         public DateTime? updated_at { get; set; } = DateTime.Now;
-
-        public int zone_id { get; set; }
-
-        public int vehicle_id { get; set; }
-
-        public int rfid_card_id { get; set; }
-
-        public int fee_config_id { get; set; }
 
         // Navigation Properties
         [ForeignKey("entry_gate_id")]

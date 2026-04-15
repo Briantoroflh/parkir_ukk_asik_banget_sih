@@ -23,7 +23,6 @@ namespace backend.Controllers
             _db = db;
         }
 
-        [Authorize]
         [HttpGet("get-all")]
         public async Task<ActionResult<IEnumerable<Role>>> GetAllRole()
         {
@@ -34,6 +33,7 @@ namespace backend.Controllers
 
                 if (result != null)
                 {
+                    await Task.Delay(Random.Shared.Next(100, 500));
                     return Ok(new
                     {
                         status = true,

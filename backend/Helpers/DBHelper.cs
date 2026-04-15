@@ -10,6 +10,33 @@ namespace backend.Helpers
 {
     public class DBHelper
     {
+        public async Task<IEnumerable<dynamic>> QueryRelation(string conn, string sql)
+        {
+            var DB = new MySqlConnection(conn);
+            try
+            {
+                if (DB.State == System.Data.ConnectionState.Closed)
+                {
+                    DB.Open();
+                }
+
+                var q = await DB.QueryAsync(sql, null, null, null, System.Data.CommandType.Text);
+                return q;
+            }
+            catch (Exception ex)    
+            {
+                throw ex;
+            }
+            finally
+            {
+                if(DB.State == System.Data.ConnectionState.Open)
+                {
+                    DB.Close();
+                }
+                DB.Dispose();
+            }
+        }
+
         public async Task<IEnumerable<T>> ToModel<T>(string conn, string sql)
         {
             var DB = new MySqlConnection(conn);

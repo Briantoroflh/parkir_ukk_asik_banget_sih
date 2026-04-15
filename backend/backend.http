@@ -4,3 +4,90 @@ GET {{backend_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+## ============================================
+## ENTRY PARKING - TICKET GENERATION
+## ============================================
+
+### Entry Parking - Generate Ticket (Success)
+POST {{backend_HostAddress}}/api/entry-parking/entry-ticket
+Content-Type: application/json
+
+{
+    "plate_number": "AB1234CD",
+    "vehicle_type_id": 1,
+    "gate": "Gate Main"
+}
+
+###
+
+### Entry Parking - Generate Ticket (Mobil - Tipe 2)
+POST {{backend_HostAddress}}/api/entry-parking/entry-ticket
+Content-Type: application/json
+
+{
+    "plate_number": "B9876XY",
+    "vehicle_type_id": 2,
+    "gate": "Gate Basement"
+}
+
+###
+
+### Entry Parking - Generate Ticket (Motor - Tipe 1)
+POST {{backend_HostAddress}}/api/entry-parking/entry-ticket
+Content-Type: application/json
+
+{
+    "plate_number": "D4567HL",
+    "vehicle_type_id": 1,
+    "gate": "Gate A"
+}
+
+###
+
+### Entry Parking - Error: Missing plate_number
+POST {{backend_HostAddress}}/api/entry-parking/entry-ticket
+Content-Type: application/json
+
+{
+    "plate_number": "",
+    "vehicle_type_id": 1,
+    "gate": "Gate Main"
+}
+
+###
+
+### Entry Parking - Error: Missing gate
+POST {{backend_HostAddress}}/api/entry-parking/entry-ticket
+Content-Type: application/json
+
+{
+    "plate_number": "AB1234CD",
+    "vehicle_type_id": 1,
+    "gate": ""
+}
+
+###
+
+### Entry Parking - Error: Invalid Gate
+POST {{backend_HostAddress}}/api/entry-parking/entry-ticket
+Content-Type: application/json
+
+{
+    "plate_number": "AB1234CD",
+    "vehicle_type_id": 1,
+    "gate": "Gate Invalid"
+}
+
+###
+
+### Entry Parking - RFID (Existing)
+POST {{backend_HostAddress}}/api/entry-parking/entry-rfid
+Content-Type: application/json
+
+{
+    "rfid": "UID-123456",
+    "gate": "Gate Main"
+}
+
+###

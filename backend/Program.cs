@@ -7,14 +7,21 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using backend.Helpers;
 using backend.Services.extensions;
+using DotNetEnv;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
-string jwtKey = builder.Configuration["Jwt:Key"];
-string jwtIssuer = builder.Configuration["Jwt:Issuer"];
-string jwtAudience = builder.Configuration["Jwt:Audience"];
+
+Env.Load();
+
+IronBarCode.License.LicenseKey = Environment.GetEnvironmentVariable("IRONBARCODE_LICENSE");
+
+var jwtkey = Environment.GetEnvironmentVariable("JWT_KEY");
+var jwtissuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+var jwtaudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 
-if (string.IsNullOrEmpty(jwtKey))
+if (string.IsNullOrEmpty(jwtkey))
 {
     throw new Exception("JWT Key tidak ditemukan di appsettings.json! Pastikan struktur JSON-nya benar.");
 }
@@ -41,14 +48,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtIssuer,
-            ValidAudience = jwtAudience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+            ValidIssuer = jwtissuer,
+            ValidAudience = jwtaudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtkey))
         };
     });
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+app.UseHttpMetrics();
+app.MapMetrics();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,0 +1,45 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_USER=brian
+      - MYSQL_PASSWORD=120608
+      - MYSQL_DATABASE=parkir_ukk
+      - MYSQL_ROOT_PASSWORD=root
+    container_name: parkir_db
+    ports:
+      - 5001:5000
+    volumes:
+      - db_mysql_data:/var/lib/mysql
+    
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5165:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    container_name: backend_dotnet_parkir
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #   environment:
+  #   - NODE_ENV=development
+  #   ports:
+  #     - "3002:3002"
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #   container_name: frontend_react_parkir
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - backend
+
+volumes:
+  db_mysql_data:
