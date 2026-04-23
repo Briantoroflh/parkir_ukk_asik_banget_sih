@@ -12,6 +12,7 @@ namespace backend.Models
         [Key]
         public int id { get; set; }
         public int gate_id { get; set; }
+        public string uniqUrl { get; set; }
         public string? device_type { get; set; }
         public bool status { get; set; }
         public DateTime? las_ping_at { get; set; } = DateTime.Now;

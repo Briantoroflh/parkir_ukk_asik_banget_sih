@@ -18,8 +18,8 @@ export default defineConfig({
       "**/*",
     ],
     manifest: {
-      // "theme_color": "#f69435",
-      // "background_color": "#f69435",
+      "theme_color": "#f69435",
+      "background_color": "#f69435",
       "display": "standalone",
       "scope": "/",
       "start_url": "/",

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using backend.DTOs.FeeConfig;
 using backend.Helpers;
@@ -76,7 +77,9 @@ namespace backend.Controllers
                     });
                 }
 
-                var query = $"INSERT INTO fee_configs (zone_id, vehicle_type_id, created_by, base_fee, grace_period_minutes, is_active, effective_from, effective_until, created_at) VALUES ({dto.zone_id}, {dto.vehicle_type_id}, {dto.created_by}, {dto.base_fee}, {dto.grace_period_minutes}, {(dto.is_active ? 1 : 0)}, '{dto.effective_from:yyyy-MM-dd HH:mm:ss}', '{(dto.effective_until.HasValue ? dto.effective_until.Value.ToString("yyyy-MM-dd HH:mm:ss") : null)}', NOW())";
+                var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var query = $"INSERT INTO fee_configs (zone_id, vehicle_type_id, created_by, base_fee, grace_period_minutes, is_active, effective_from, effective_until, created_at) VALUES ({dto.zone_id}, {dto.vehicle_type_id}, {user}, {dto.base_fee}, {dto.grace_period_minutes}, TRUE, '{dto.effective_from:yyyy-MM-dd HH:mm:ss}', '{(dto.effective_until.HasValue ? dto.effective_until.Value.ToString("yyyy-MM-dd HH:mm:ss") : null)}', NOW())";
                 var result = await _db.ExecuteQuery(_config, query);
 
                 if (result > 0)
@@ -135,7 +138,7 @@ namespace backend.Controllers
                     });
                 }
 
-                var query = $"UPDATE fee_configs SET zone_id = {dto.zone_id}, vehicle_type_id = {dto.vehicle_type_id}, created_by = {dto.created_by}, base_fee = {dto.base_fee}, grace_period_minutes = {dto.grace_period_minutes}, is_active = {(dto.is_active ? 1 : 0)}, effective_from = '{dto.effective_from:yyyy-MM-dd HH:mm:ss}', effective_until = '{(dto.effective_until.HasValue ? dto.effective_until.Value.ToString("yyyy-MM-dd HH:mm:ss") : null)}', updated_at = NOW() WHERE id = {id}";
+                var query = $"UPDATE fee_configs SET zone_id = {dto.zone_id}, vehicle_type_id = {dto.vehicle_type_id}, base_fee = {dto.base_fee}, grace_period_minutes = {dto.grace_period_minutes}, is_active = {(dto.is_active ? 1 : 0)}, effective_from = '{dto.effective_from:yyyy-MM-dd HH:mm:ss}', effective_until = '{(dto.effective_until.HasValue ? dto.effective_until.Value.ToString("yyyy-MM-dd HH:mm:ss") : null)}', updated_at = NOW() WHERE id = {id}";
                 var result = await _db.ExecuteQuery(_config, query);
 
                 if (result > 0)

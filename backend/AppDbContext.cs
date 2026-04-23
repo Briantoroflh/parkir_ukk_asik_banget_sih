@@ -33,13 +33,16 @@ namespace backend
         public DbSet<UserLoginLogs> user_login_logs { get; set; }
         public DbSet<UserLoginStats> user_login_stats { get; set; }
 
+        // Level 4: Tenant & Membership
+        public DbSet<TenantMember> tenant_members { get; set; }
+
         // Level 4: Vehicle & Gate infrastructure
         public DbSet<FeeTier> fee_tiers { get; set; }
         public DbSet<Vehicle> vehicles { get; set; }
         public DbSet<RfidCard> rfid_cards { get; set; }
         public DbSet<Gate> gates { get; set; }
         public DbSet<GateDevice> gate_devices { get; set; }
-        public DbSet<EnteranceTracking> enterance_trackings { get; set; }
+        public DbSet<GateDeviceAds> gate_device_ads { get; set; }
 
         // Level 6: Transaction & Payment
         public DbSet<Transaction> transactions { get; set; }
@@ -47,9 +50,6 @@ namespace backend
         public DbSet<Payment> payments { get; set; }
         public DbSet<MidtransCallback> midtrans_callbacks { get; set; }
         public DbSet<Refund> refunds { get; set; }
-
-        // Level 6.5: Parking Tickets
-        public DbSet<TicketParking> ticket_parkings { get; set; }
 
         // Level 7: OCR & Review
         public DbSet<OcrResults> ocr_results { get; set; }
@@ -84,11 +84,11 @@ namespace backend
 
             // Seed Users (5 data) - References Roles
             modelBuilder.Entity<Users>().HasData(
-                new Users { id = 1, name = "Super Administrator", email = "superadmin@parkir.local", password_hash = "$2a$11$abc123hash", is_active = true, role_id = 1, created_at = now, updated_at = now },
-                new Users { id = 2, name = "Admin User", email = "admin@parkir.local", password_hash = "$2a$11$def456hash", is_active = true, role_id = 2, created_at = now, updated_at = now },
-                new Users { id = 3, name = "Gate Operator 1", email = "operator1@parkir.local", password_hash = "$2a$11$ghi789hash", is_active = true, role_id = 3, created_at = now, updated_at = now },
-                new Users { id = 4, name = "Zone Manager", email = "manager@parkir.local", password_hash = "$2a$11$jkl012hash", is_active = true, role_id = 4, created_at = now, updated_at = now },
-                new Users { id = 5, name = "Viewer User", email = "viewer@parkir.local", password_hash = "$2a$11$mno345hash", is_active = true, role_id = 5, created_at = now, updated_at = now }
+                new Users { id = 1, name = "Super Administrator", email = "superadmin@parkir.local", password_hash = "12345", is_active = true, role_id = 1, created_at = now, updated_at = now },
+                new Users { id = 2, name = "Admin User", email = "admin@parkir.local", password_hash = "12345", is_active = true, role_id = 2, created_at = now, updated_at = now },
+                new Users { id = 3, name = "Gate Operator 1", email = "operator1@parkir.local", password_hash = "12345", is_active = true, role_id = 3, created_at = now, updated_at = now },
+                new Users { id = 4, name = "Zone Manager", email = "manager@parkir.local", password_hash = "12345", is_active = true, role_id = 4, created_at = now, updated_at = now },
+                new Users { id = 5, name = "Viewer User", email = "viewer@parkir.local", password_hash = "12345", is_active = true, role_id = 5, created_at = now, updated_at = now }
             );
 
             // Seed VehicleTypes (5 data)
@@ -102,11 +102,11 @@ namespace backend
 
             // Seed Zones (5 data)
             modelBuilder.Entity<Zone>().HasData(
-                new Zone { id = 1, name = "Zona A - Lantai 1", description = "Ground floor parking zone", capacity = 100, additional_fee = 0, is_active = true, created_by = "System", created_at = now, updated_at = now },
-                new Zone { id = 2, name = "Zona B - Lantai 2", description = "Second floor parking zone", capacity = 150, additional_fee = 2000, is_active = true, created_by = "System", created_at = now, updated_at = now },
-                new Zone { id = 3, name = "Zona C - Lantai 3", description = "Third floor parking zone", capacity = 120, additional_fee = 3000, is_active = true, created_by = "System", created_at = now, updated_at = now },
-                new Zone { id = 4, name = "Zona D - Outdoor", description = "Outdoor parking area", capacity = 200, additional_fee = 0, is_active = true, created_by = "System", created_at = now, updated_at = now },
-                new Zone { id = 5, name = "Zona E - VIP", description = "VIP parking zone with premium services", capacity = 50, additional_fee = 10000, is_active = true, created_by = "System", created_at = now, updated_at = now }
+                new Zone { id = 1, name = "Zona A - Lantai 1", description = "Ground floor parking zone", additional_fee = 0, is_active = true, created_by = "System", created_at = now, updated_at = now },
+                new Zone { id = 2, name = "Zona B - Lantai 2", description = "Second floor parking zone", additional_fee = 2000, is_active = true, created_by = "System", created_at = now, updated_at = now },
+                new Zone { id = 3, name = "Zona C - Lantai 3", description = "Third floor parking zone", additional_fee = 3000, is_active = true, created_by = "System", created_at = now, updated_at = now },
+                new Zone { id = 4, name = "Zona D - Outdoor", description = "Outdoor parking area", additional_fee = 0, is_active = true, created_by = "System", created_at = now, updated_at = now },
+                new Zone { id = 5, name = "Zona E - VIP", description = "VIP parking zone with premium services", additional_fee = 10000, is_active = true, created_by = "System", created_at = now, updated_at = now }
             );
 
             // Seed RolePermissions (5 data minimum - Super Admin gets all permissions)
@@ -168,11 +168,11 @@ namespace backend
 
             // Seed GateDevices (5 data) - References Gates
             modelBuilder.Entity<GateDevice>().HasData(
-                new GateDevice { id = 1, gate_id = 1, device_type = "RFID_READER", status = true, las_ping_at = now, error_message = null, created_at = now, updated_at = now },
-                new GateDevice { id = 2, gate_id = 2, device_type = "BARRIER_ARM", status = true, las_ping_at = now, error_message = null, created_at = now, updated_at = now },
-                new GateDevice { id = 3, gate_id = 3, device_type = "RFID_READER", status = true, las_ping_at = now, error_message = null, created_at = now, updated_at = now },
-                new GateDevice { id = 4, gate_id = 4, device_type = "BARRIER_ARM", status = false, las_ping_at = now, error_message = "Connection timeout", created_at = now, updated_at = now },
-                new GateDevice { id = 5, gate_id = 5, device_type = "CAMERA", status = true, las_ping_at = now, error_message = null, created_at = now, updated_at = now }
+                new GateDevice { id = 1, gate_id = 1, uniqUrl = "https://device.parkir.com/gate1", device_type = "RFID_READER", status = true, las_ping_at = now, error_message = null, created_at = now, updated_at = now },
+                new GateDevice { id = 2, gate_id = 2, uniqUrl = "https://device.parkir.com/gate2", device_type = "BARRIER_ARM", status = true, las_ping_at = now, error_message = null, created_at = now, updated_at = now },
+                new GateDevice { id = 3, gate_id = 3, uniqUrl = "https://device.parkir.com/gate3", device_type = "RFID_READER", status = true, las_ping_at = now, error_message = null, created_at = now, updated_at = now },
+                new GateDevice { id = 4, gate_id = 4, uniqUrl = "https://device.parkir.com/gate4", device_type = "BARRIER_ARM", status = false, las_ping_at = now, error_message = "Connection timeout", created_at = now, updated_at = now },
+                new GateDevice { id = 5, gate_id = 5, uniqUrl = "https://device.parkir.com/gate5", device_type = "CAMERA", status = true, las_ping_at = now, error_message = null, created_at = now, updated_at = now }
             );
 
             // Seed FeeConfigs (5 data) - References Zones, VehicleTypes, Users
@@ -221,15 +221,6 @@ namespace backend
                 new RfidCard { id = 5, card_uid = "08D4B2C4", vehicle_id = null, is_guest = false, is_member = false, employee_id = 2, deactivated_by = null, created_at = now.AddDays(-5), deactivated_at = null }
             );
 
-            // Seed EnteranceTracking (5 data) - References RfidCard, TicketParking & Gate
-            modelBuilder.Entity<EnteranceTracking>().HasData(
-                new EnteranceTracking { id = 1, rfid_card_id = 1, ticket_id = null, gate_id = 1, in_at = now.AddDays(-2), out_at = now.AddDays(-2).AddHours(2), created_at = now.AddDays(-2) },
-                new EnteranceTracking { id = 2, rfid_card_id = 2, ticket_id = null, gate_id = 3, in_at = now.AddDays(-1).AddHours(-13).AddMinutes(-30), out_at = null, created_at = now.AddDays(-1).AddHours(-13).AddMinutes(-30) },
-                new EnteranceTracking { id = 3, rfid_card_id = 3, ticket_id = null, gate_id = 1, in_at = now.AddDays(-2).AddHours(-3), out_at = now.AddDays(-2).AddHours(-1), created_at = now.AddDays(-2).AddHours(-3) },
-                new EnteranceTracking { id = 4, rfid_card_id = 4, ticket_id = null, gate_id = 5, in_at = now.AddDays(-3).AddHours(-4), out_at = now.AddDays(-2).AddHours(-22), created_at = now.AddDays(-3).AddHours(-4) },
-                new EnteranceTracking { id = 5, rfid_card_id = 5, ticket_id = null, gate_id = 4, in_at = now.AddDays(-3).AddHours(-15).AddMinutes(-15), out_at = now.AddDays(-2).AddHours(-23).AddMinutes(-30), created_at = now.AddDays(-3).AddHours(-15).AddMinutes(-15) }
-            );
-
             // // Seed UserSessions (5 data) - References Users
             // modelBuilder.Entity<UserSession>().HasData(
             //     new UserSession { id = 1, user_id = 1, token_hash = "hash1token", ip_address = "192.168.1.1", user_agent = "Mozilla/5.0", created_at = now, expires_at = now.AddHours(24), revoked_at = null },
@@ -257,32 +248,23 @@ namespace backend
             //     new UserLoginStats { id = 5, user_id = 5, total_attempts = 6, total_failed_attempts = 0, last_attempt_at = now.AddHours(-4), last_success_at = now.AddHours(-4), last_failed_ip = null, is_locked = false, locked_at = now, locked_reason = null, updated_at = now }
             // );
 
-            // // Seed Transactions (5 data)
-            // modelBuilder.Entity<Transaction>().HasData(
-            //     new Transaction { id = 1, transaction_code = "TRX001", entry_method = "RFID", entry_qr_code = "QR001", entry_at = now.AddHours(-2), entry_photo_url = "photo1.jpg", entry_gate_id = 1, exit_gate_id = 2, exit_method = "RFID", exit_at = now, calculated_fee = 10000, status = "completed", receipt_printed = true, receipt_printed_at = now, created_at = now },
-            //     new Transaction { id = 2, transaction_code = "TRX002", entry_method = "RFID", entry_qr_code = "QR002", entry_at = now.AddHours(-1), entry_photo_url = "photo2.jpg", entry_gate_id = 1, exit_gate_id = 2, exit_method = "MANUAL", exit_at = now, calculated_fee = 5000, status = "completed", receipt_printed = true, receipt_printed_at = now, created_at = now },
-            //     new Transaction { id = 3, transaction_code = "TRX003", entry_method = "OCR", entry_qr_code = "QR003", entry_at = now.AddHours(-3), entry_photo_url = "photo3.jpg", entry_gate_id = 3, exit_gate_id = 4, exit_method = "MANUAL", exit_at = null, calculated_fee = 0, status = "pending", receipt_printed = false, receipt_printed_at = null, created_at = now },
-            //     new Transaction { id = 4, transaction_code = "TRX004", entry_method = "RFID", entry_qr_code = "QR004", entry_at = now.AddHours(-4), entry_photo_url = "photo4.jpg", entry_gate_id = 2, exit_gate_id = 5, exit_method = "RFID", exit_at = now, calculated_fee = 20000, status = "completed", receipt_printed = true, receipt_printed_at = now, created_at = now },
-            //     new Transaction { id = 5, transaction_code = "TRX005", entry_method = "OCR", entry_qr_code = "QR005", entry_at = now.AddHours(-5), entry_photo_url = "photo5.jpg", entry_gate_id = 4, exit_gate_id = 5, exit_method = "OCR", exit_at = now, calculated_fee = 25000, status = "completed", receipt_printed = true, receipt_printed_at = now, created_at = now }
-            // );
+            // Seed Transactions (5 data)
+            modelBuilder.Entity<Transaction>().HasData(
+                new Transaction { id = 1, transaction_code = "TRX001", entry_method = "RFID", entry_qr_code = "QR001", entry_at = now.AddHours(-2), entry_photo_url = "photo1.jpg", entry_gate_id = 1, exit_gate_id = 2, exit_method = "RFID", exit_at = now, calculated_fee = 10000, status = "completed", receipt_printed = true, receipt_printed_at = now, vehicle_type_id = 2, zone_id = 1, fee_config_id = 1, created_at = now },
+                new Transaction { id = 2, transaction_code = "TRX002", entry_method = "RFID", entry_qr_code = "QR002", entry_at = now.AddHours(-1), entry_photo_url = "photo2.jpg", entry_gate_id = 1, exit_gate_id = 2, exit_method = "MANUAL", exit_at = now, calculated_fee = 5000, status = "completed", receipt_printed = true, receipt_printed_at = now, vehicle_type_id = 1, zone_id = 1, fee_config_id = 2, created_at = now },
+                new Transaction { id = 3, transaction_code = "TRX003", entry_method = "OCR", entry_qr_code = "QR003", entry_at = now.AddHours(-3), entry_photo_url = "photo3.jpg", entry_gate_id = 3, exit_gate_id = 4, exit_method = "MANUAL", exit_at = null, calculated_fee = 0, status = "pending", receipt_printed = false, receipt_printed_at = null, vehicle_type_id = 3, zone_id = 2, fee_config_id = 4, created_at = now },
+                new Transaction { id = 4, transaction_code = "TRX004", entry_method = "RFID", entry_qr_code = "QR004", entry_at = now.AddHours(-4), entry_photo_url = "photo4.jpg", entry_gate_id = 2, exit_gate_id = 5, exit_method = "RFID", exit_at = now, calculated_fee = 20000, status = "completed", receipt_printed = true, receipt_printed_at = now, vehicle_type_id = 4, zone_id = 1, member_vehicle_id = 4, fee_config_id = 5, created_at = now },
+                new Transaction { id = 5, transaction_code = "TRX005", entry_method = "OCR", entry_qr_code = "QR005", entry_at = now.AddHours(-5), entry_photo_url = "photo5.jpg", entry_gate_id = 4, exit_gate_id = 5, exit_method = "OCR", exit_at = now, calculated_fee = 25000, status = "completed", receipt_printed = true, receipt_printed_at = now, vehicle_type_id = 2, zone_id = 5, member_vehicle_id = 5, fee_config_id = 3, created_at = now }
+            );
 
-            // // Seed Payments (5 data)
-            // modelBuilder.Entity<Payment>().HasData(
-            //     new Payment { id = 1, transaction_id = 1, method = "cash", amount = 10000, status = "paid", cash_tendered = 10000, cash_change = 0, midtrans_order_id = "MID001", midtrans_transaction_id = null, qris_url = null, qris_expires_at = null, midtrans_status = null, paid_at = now, created_at = now, updated_at = now },
-            //     new Payment { id = 2, transaction_id = 2, method = "qris", amount = 5000, status = "pending", cash_tendered = 0, cash_change = 0, midtrans_order_id = "MID002", midtrans_transaction_id = null, qris_url = "qris_001.png", qris_expires_at = now.AddMinutes(5), midtrans_status = "pending", paid_at = null, created_at = now, updated_at = now },
-            //     new Payment { id = 3, transaction_id = 3, method = "card", amount = 0, status = "unpaid", cash_tendered = 0, cash_change = 0, midtrans_order_id = "MID003", midtrans_transaction_id = null, qris_url = null, qris_expires_at = null, midtrans_status = "pending", paid_at = null, created_at = now, updated_at = now },
-            //     new Payment { id = 4, transaction_id = 4, method = "cash", amount = 20000, status = "paid", cash_tendered = 20000, cash_change = 0, midtrans_order_id = "MID004", midtrans_transaction_id = null, qris_url = null, qris_expires_at = null, midtrans_status = null, paid_at = now, created_at = now, updated_at = now },
-            //     new Payment { id = 5, transaction_id = 5, method = "qris", amount = 25000, status = "paid", cash_tendered = 0, cash_change = 0, midtrans_order_id = "MID005", midtrans_transaction_id = "MTX005", qris_url = "qris_005.png", qris_expires_at = now.AddMinutes(10), midtrans_status = "settlement", paid_at = now, created_at = now, updated_at = now }
-            // );
-
-            // // Seed TicketParkings (5 data)
-            // modelBuilder.Entity<TicketParking>().HasData(
-            //     new TicketParking { id = 1, ticket_code = "TKT001", vehicle_plate = "B 1234 ABC", entry_time = now.AddHours(-2), exit_time = now, fee = 10000, status = "paid", created_at = now },
-            //     new TicketParking { id = 2, ticket_code = "TKT002", vehicle_plate = "B 5678 XYZ", entry_time = now.AddHours(-1), exit_time = now, fee = 5000, status = "paid", created_at = now },
-            //     new TicketParking { id = 3, ticket_code = "TKT003", vehicle_plate = "B 9012 DEF", entry_time = now.AddHours(-3), exit_time = null, fee = 0, status = "active", created_at = now },
-            //     new TicketParking { id = 4, ticket_code = "TKT004", vehicle_plate = "B 3456 GHI", entry_time = now.AddHours(-4), exit_time = now, fee = 20000, status = "paid", created_at = now },
-            //     new TicketParking { id = 5, ticket_code = "TKT005", vehicle_plate = "B 7890 JKL", entry_time = now.AddHours(-5), exit_time = now, fee = 25000, status = "paid", created_at = now }
-            // );
+            // Seed Payments (5 data)
+            modelBuilder.Entity<Payment>().HasData(
+                new Payment { id = 1, transaction_id = 1, method = "cash", amount = 10000, status = "paid", cash_tendered = 10000, cash_change = 0, midtrans_order_id = "MID001", midtrans_transaction_id = null, qris_url = null, qris_expires_at = null, midtrans_status = null, paid_at = now, created_at = now, updated_at = now, handled_by_user_id = 1 },
+                new Payment { id = 2, transaction_id = 2, method = "qris", amount = 5000, status = "pending", cash_tendered = 0, cash_change = 0, midtrans_order_id = "MID002", midtrans_transaction_id = null, qris_url = "qris_001.png", qris_expires_at = now.AddMinutes(5), midtrans_status = "pending", paid_at = null, created_at = now, updated_at = now, handled_by_user_id = 2 },
+                new Payment { id = 3, transaction_id = 3, method = "card", amount = 0, status = "unpaid", cash_tendered = 0, cash_change = 0, midtrans_order_id = "MID003", midtrans_transaction_id = null, qris_url = null, qris_expires_at = null, midtrans_status = "pending", paid_at = null, created_at = now, updated_at = now, handled_by_user_id = 3 },
+                new Payment { id = 4, transaction_id = 4, method = "cash", amount = 20000, status = "paid", cash_tendered = 20000, cash_change = 0, midtrans_order_id = "MID004", midtrans_transaction_id = null, qris_url = null, qris_expires_at = null, midtrans_status = null, paid_at = now, created_at = now, updated_at = now, handled_by_user_id = 4 },
+                new Payment { id = 5, transaction_id = 5, method = "qris", amount = 25000, status = "paid", cash_tendered = 0, cash_change = 0, midtrans_order_id = "MID005", midtrans_transaction_id = "MTX005", qris_url = "qris_005.png", qris_expires_at = now.AddMinutes(10), midtrans_status = "settlement", paid_at = now, created_at = now, updated_at = now, handled_by_user_id = 5 }
+            );
 
             // // Seed OcrResults (5 data)
             // modelBuilder.Entity<OcrResults>().HasData(

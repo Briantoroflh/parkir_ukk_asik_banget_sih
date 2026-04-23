@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using backend.DTOs.HolidayRate;
 using backend.Helpers;
@@ -76,7 +77,9 @@ namespace backend.Controllers
                     });
                 }
 
-                var query = $"INSERT INTO holiday_rates (created_by, name, date_start, date_aend, rate_type, multiplier, override_fee, applies_to_zone_id, applies_to_vehicle_type_id, created_at) VALUES ('{dto.created_by}', '{dto.name}', '{dto.date_start:yyyy-MM-dd HH:mm:ss}', '{(dto.date_aend.HasValue ? dto.date_aend.Value.ToString("yyyy-MM-dd HH:mm:ss") : null)}', '{dto.rate_type}', {dto.multiplier}, {dto.override_fee}, {dto.applies_to_zone_id}, {dto.applies_to_vehicle_type_id}, NOW())";
+                var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var query = $"INSERT INTO holiday_rates (created_by, name, date_start, date_aend, rate_type, multiplier, override_fee, applies_to_zone_id, applies_to_vehicle_type_id, created_at) VALUES ({user}, '{dto.name}', '{dto.date_start:yyyy-MM-dd HH:mm:ss}', '{(dto.date_aend.HasValue ? dto.date_aend.Value.ToString("yyyy-MM-dd HH:mm:ss") : null)}', '{dto.rate_type}', {dto.multiplier}, {dto.override_fee}, {dto.applies_to_zone_id}, {dto.applies_to_vehicle_type_id}, NOW())";
                 var result = await _db.ExecuteQuery(_config, query);
 
                 if (result > 0)
@@ -135,7 +138,7 @@ namespace backend.Controllers
                     });
                 }
 
-                var query = $"UPDATE holiday_rates SET created_by = '{dto.created_by}', name = '{dto.name}', date_start = '{dto.date_start:yyyy-MM-dd HH:mm:ss}', date_aend = '{(dto.date_aend.HasValue ? dto.date_aend.Value.ToString("yyyy-MM-dd HH:mm:ss") : null)}', rate_type = '{dto.rate_type}', multiplier = {dto.multiplier}, override_fee = {dto.override_fee}, applies_to_zone_id = {dto.applies_to_zone_id}, applies_to_vehicle_type_id = {dto.applies_to_vehicle_type_id}, updated_at = NOW() WHERE id = {id}";
+                var query = $"UPDATE holiday_rates SET name = '{dto.name}', date_start = '{dto.date_start:yyyy-MM-dd HH:mm:ss}', date_aend = '{(dto.date_aend.HasValue ? dto.date_aend.Value.ToString("yyyy-MM-dd HH:mm:ss") : null)}', rate_type = '{dto.rate_type}', multiplier = {dto.multiplier}, override_fee = {dto.override_fee}, applies_to_zone_id = {dto.applies_to_zone_id}, applies_to_vehicle_type_id = {dto.applies_to_vehicle_type_id}, updated_at = NOW() WHERE id = {id}";
                 var result = await _db.ExecuteQuery(_config, query);
 
                 if (result > 0)

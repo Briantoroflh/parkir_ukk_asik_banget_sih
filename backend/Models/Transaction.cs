@@ -25,16 +25,18 @@ namespace backend.Models
         public int entry_gate_id { get; set; }
         public int? exit_gate_id { get; set; }
         [StringLength(16)]
-        public string exit_method { get; set; }
+        public string? exit_method { get; set; }
         public DateTime? exit_at { get; set; }
-        public int calculated_fee { get; set; }
+        public int? calculated_fee { get; set; }
+        public int? total_payment { get; set; }
         [StringLength(20)]
         public string status { get; set; }
         public bool? receipt_printed { get; set; }
         public DateTime? receipt_printed_at { get; set; }
+        public int vehicle_type_id { get; set; }
         public int? holiday_rate_id { get; set; }
         public int? zone_id { get; set; }
-        public int? vehicle_id { get; set; }
+        public int? member_vehicle_id { get; set; }
         public int? rfid_card_id { get; set; }
         public int? fee_config_id { get; set; }
         public DateTime created_at { get; set; } = DateTime.Now;
@@ -46,6 +48,9 @@ namespace backend.Models
 
         [ForeignKey("exit_gate_id")]
         public Gate? ExitGate { get; set; }
+        
+        [ForeignKey("vehicle_type_id")]
+        public VehicleTypes? VehicleType { get; set; }
 
         [ForeignKey("holiday_rate_id")]
         public HolidayRate? HolidayRate { get; set; }
@@ -53,7 +58,7 @@ namespace backend.Models
         [ForeignKey("zone_id")]
         public Zone? Zone { get; set; }
 
-        [ForeignKey("vehicle_id")]
+        [ForeignKey("member_vehicle_id")]
         public Vehicle? Vehicle { get; set; }
 
         [ForeignKey("rfid_card_id")]

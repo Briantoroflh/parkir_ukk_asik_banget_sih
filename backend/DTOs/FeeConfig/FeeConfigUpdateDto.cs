@@ -14,9 +14,6 @@ namespace backend.DTOs.FeeConfig
         [Required(ErrorMessage = "Vehicle type ID tidak boleh kosong")]
         public int vehicle_type_id { get; set; }
 
-        [Required(ErrorMessage = "Created by tidak boleh kosong")]
-        public int created_by { get; set; }
-
         [Required(ErrorMessage = "Base fee tidak boleh kosong")]
         public int base_fee { get; set; }
 

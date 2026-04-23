@@ -8,9 +8,6 @@ namespace backend.DTOs.HolidayRate
 {
     public class HolidayRateUpdateDto
     {
-        [Required(ErrorMessage = "Created by tidak boleh kosong")]
-        public string created_by { get; set; }
-
         [Required(ErrorMessage = "Name tidak boleh kosong")]
         public string name { get; set; }
 

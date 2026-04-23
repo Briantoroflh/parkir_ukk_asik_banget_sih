@@ -16,6 +16,7 @@ Env.Load();
 
 IronBarCode.License.LicenseKey = Environment.GetEnvironmentVariable("IRONBARCODE_LICENSE");
 
+var allowOrigin = Environment.GetEnvironmentVariable("POLICY_CORS");
 var jwtkey = Environment.GetEnvironmentVariable("JWT_KEY");
 var jwtissuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
 var jwtaudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
@@ -50,9 +51,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtissuer,
             ValidAudience = jwtaudience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtkey))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtkey)),
+            ClockSkew = TimeSpan.Zero
         };
     });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: allowOrigin,
+     policy =>
+     {
+         policy.WithOrigins("http://localhost:3002")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+     }
+    );
+});
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -61,6 +75,8 @@ app.UseHttpMetrics();
 app.MapMetrics();
 
 app.UseAuthentication();
+app.UseCors(allowOrigin);
+app.UseStaticFiles(); // Enable serving static files from wwwroot
 app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
@@ -73,9 +89,9 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/role"), appBuilder =>{appBuilder.UseRole("Admin");});
-app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/permission"), appBuilder =>{appBuilder.UseRole("Admin");});
-app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/role-permission"), appBuilder =>{appBuilder.UseRole("Admin");});
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/role"), appBuilder => { appBuilder.UseRole("Admin"); });
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/permission"), appBuilder => { appBuilder.UseRole("Admin"); });
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/role-permission"), appBuilder => { appBuilder.UseRole("Admin"); });
 
 app.MapControllers();
 

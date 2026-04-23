@@ -19,21 +19,21 @@ namespace backend.Services.sessions
             _db = db;
         }
 
-        public async Task<int> CreateSession(int user_id, string token_hash, string ip_address, string user_agent, DateTime expires_at)
+        public async Task<int> CreateSession(int user_id, string refresh_token, string ip_address, string user_agent, DateTime expires_at)
         {
             var checkQuery = $"SELECT user_id FROM user_sessions WHERE user_id = {user_id}";
             var checkResult = await _db.ExecuteQuery(_config, checkQuery);
 
             if (checkResult > 0)
             {
-                var updateQuery = $"UPDATE user_sessions SET ip_address = '{ip_address}', user_agent = '{user_agent}', expires_at = '{expires_at:yyyy-MM-dd HH:mm:ss}' WHERE user_id = {user_id}";
+                var updateQuery = $"UPDATE user_sessions SET refresh_token='{refresh_token}' , expires_at='{expires_at:yyyy-MM-dd HH:mm:ss}' WHERE user_id = {user_id}";
                 var result = await _db.ExecuteQuery(_config, updateQuery);
 
                 return result > 0 ? result : 0;
             }
             else
             {
-                var insertQuery = $"INSERT INTO user_sessions (user_id, token_hash, ip_address, user_agent, created_at, expires_at) VALUES ({user_id}, '{token_hash}', '{ip_address}', '{user_agent}', NOW(), '{expires_at:yyyy-MM-dd HH:mm:ss}')";
+                var insertQuery = $"INSERT INTO user_sessions (user_id, refresh_token, ip_address, user_agent, created_at, expires_at) VALUES ({user_id}, '{refresh_token}','{ip_address}', '{user_agent}', NOW(), '{expires_at:yyyy-MM-dd HH:mm:ss}')";
                 var result = await _db.ExecuteQuery(_config, insertQuery);
 
                 return result > 0 ? result : 0;

@@ -89,7 +89,6 @@ namespace backend.Controllers.Parking
                         fee_configs.zone_id,
                         fee_configs.vehicle_type_id, 
                         zones.name, 
-                        zones.capacity, 
                         fee_configs.base_fee
                     FROM gates 
                     RIGHT JOIN zones ON gates.zone_id = zones.id
@@ -99,17 +98,37 @@ namespace backend.Controllers.Parking
                 var gateDataResult = await _db.QueryRelation(_config, gateData);
                 var gate = gateDataResult.FirstOrDefault();
 
-                var enteranceExists = $"SELECT id, rfid_card_id, gate_id, in_at FROM enterance_trackings WHERE rfid_card_id = {rfidExisting.id} AND gate_id = {gateExisting.id} AND out_at IS NULL";
-                var enteranceExisting = await _db.ToSingleModel<EnteranceTracking>(_config, enteranceExists);
+                var enteranceExists = $"SELECT id, transaction_code, rfid_card_id, entry_at FROM transactions WHERE rfid_card_id = {rfidExisting.id} AND exit_at IS NULL";
+                var enteranceExisting = await _db.ToSingleModel<Transaction>(_config, enteranceExists);
 
-                // jika ada data enterance
                 if (enteranceExisting != null)
                 {
                     var currentTime = DateTime.Now;
-                    DateTime inAt = Convert.ToDateTime(enteranceExisting.in_at);
+                    DateTime inAt = Convert.ToDateTime(enteranceExisting.entry_at);
                     var parkingDuration = currentTime - inAt;
 
-                    var enteranceExitOutTime = $"UPDATE enterance_trackings SET out_at = NOW() WHERE rfid_card_id = {enteranceExisting.rfid_card_id} AND gate_id = {enteranceExisting.gate_id}";
+                    Console.WriteLine(parkingDuration);
+
+                    var holidayRateExists = $"SELECT name, date_start, date_aend, rate_type, multiplier, override_fee FROM holiday_rates WHERE applies_to_zone_id = {zoneExisting.id} AND applies_to_vehicle_type_id = {gate?.vehicle_type_id}";
+                    var holidayRateResult = await _db.ToSingleModel<HolidayRate>(_config, holidayRateExists);
+
+                    decimal baseFee = gate?.base_fee != null ? Convert.ToDecimal(gate.base_fee) : 0;
+                    if(holidayRateResult != null && holidayRateResult.override_fee != 0)
+                    {
+                        baseFee += holidayRateResult.override_fee;
+                    }
+
+                    if(holidayRateResult != null && holidayRateResult.multiplier != 0)
+                    {
+                        baseFee *= (int)holidayRateResult.multiplier;
+                    }
+                    Console.WriteLine(baseFee);
+
+                    int totalHours = (int)Math.Ceiling(parkingDuration.TotalHours);
+                    decimal calculatedFee = baseFee * totalHours;
+                    Console.WriteLine(calculatedFee);
+
+                    var enteranceExitOutTime = $"UPDATE transactions SET exit_gate_id = {gateExisting.id}, exit_method = 'rfid', exit_at = NOW(), calculated_fee = {calculatedFee}, status = 'paid', updated_at = NOW() WHERE rfid_card_id = {rfidExisting.id} AND transaction_code = '{enteranceExisting.transaction_code}'";
                     var exitOutTime = await _db.ExecuteQuery(_config, enteranceExitOutTime);
 
                     if (rfidExisting.is_guest == true)
@@ -198,7 +217,7 @@ namespace backend.Controllers.Parking
         // [Route("exit-ticket")]
         // private async Task<IActionResult> ExitParkingTicket()
         // {
-            
+
         // }
 
         // private async Task<int> CalculateParkingFee()

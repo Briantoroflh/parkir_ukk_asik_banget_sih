@@ -16,6 +16,7 @@ namespace backend.Models
         public bool? is_guest { get; set; }
         public bool? is_member { get; set; }
         public int? employee_id { get; set; }
+        public int? pic_tenant_id { get; set; }
         public string? deactivated_by { get; set; }
         public DateTime created_at { get; set; } = DateTime.Now;
         public DateTime? deactivated_at { get; set; } = DateTime.Now;
@@ -25,5 +26,8 @@ namespace backend.Models
         
         [ForeignKey("employee_id")]
         public Employee? employee { get; set; }
+
+        [ForeignKey("pic_tenant_id")]
+        public TenantMember? pic_tenant { get; set; }
     }
 }

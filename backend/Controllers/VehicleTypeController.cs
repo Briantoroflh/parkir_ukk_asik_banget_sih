@@ -135,7 +135,7 @@ namespace backend.Controllers
                     });
                 }
 
-                var query = $"UPDATE vehicle_types SET name = '{dto.name}', minimum_fee = {dto.minimum_fee}, description = '{dto.description ?? ""}', updated_at = NOW() WHERE id = {id}";
+                var query = $"UPDATE vehicle_types SET name = '{dto.name}', minimum_fee = {dto.minimum_fee}, description = '{dto.description ?? ""}' WHERE id = {id}";
                 var result = await _db.ExecuteQuery(_config, query);
 
                 if (result > 0)

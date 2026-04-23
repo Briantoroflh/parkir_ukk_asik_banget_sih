@@ -8,9 +8,6 @@ namespace backend.DTOs.Gate
 {
     public class GateUpdateDto
     {
-        [Required(ErrorMessage = "Created by tidak boleh kosong")]
-        public string created_by { get; set; }
-
         [Required(ErrorMessage = "Zone ID tidak boleh kosong")]
         public int zone_id { get; set; }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using backend.DTOs.Gate;
 using backend.Helpers;
@@ -76,7 +77,9 @@ namespace backend.Controllers
                     });
                 }
 
-                var query = $"INSERT INTO gates (created_by, zone_id, name, gate_type, location_desc, is_active, created_at) VALUES ('{dto.created_by}', {dto.zone_id}, '{dto.name}', '{dto.gate_type}', '{dto.location_desc ?? ""}', {(dto.is_active ? 1 : 0)}, NOW())";
+                var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var query = $"INSERT INTO gates (created_by, zone_id, name, gate_type, location_desc, is_active,created_at) VALUES ( {user}, {dto.zone_id}, '{dto.name}', '{dto.gate_type}', '{dto.location_desc ?? ""}', TRUE,NOW())";
                 var result = await _db.ExecuteQuery(_config, query);
 
                 if (result > 0)
@@ -135,7 +138,7 @@ namespace backend.Controllers
                     });
                 }
 
-                var query = $"UPDATE gates SET created_by = '{dto.created_by}', zone_id = {dto.zone_id}, name = '{dto.name}', gate_type = '{dto.gate_type}', location_desc = '{dto.location_desc ?? ""}', is_active = {(dto.is_active ? 1 : 0)}, updated_at = NOW() WHERE id = {id}";
+                var query = $"UPDATE gates SET zone_id = {dto.zone_id}, name = '{dto.name}', gate_type = '{dto.gate_type}', location_desc = '{dto.location_desc ?? ""}', is_active = {(dto.is_active ? 1 : 0)}, updated_at = NOW() WHERE id = {id}";
                 var result = await _db.ExecuteQuery(_config, query);
 
                 if (result > 0)

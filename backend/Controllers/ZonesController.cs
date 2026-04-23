@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using backend.DTOs.Zone;
 using backend.Helpers;
@@ -76,7 +77,9 @@ namespace backend.Controllers
                     });
                 }
 
-                var query = $"INSERT INTO zones (created_by, name, description, capacity, additional_fee, is_active, created_at) VALUES ('{dto.created_by}', '{dto.name}', '{dto.description ?? ""}', {dto.capacity}, {dto.additional_fee}, {(dto.is_active ? 1 : 0)}, NOW())";
+                var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var query = $"INSERT INTO zones (created_by, name, description, additional_fee, is_active, created_at) VALUES ('{user}', '{dto.name}', '{dto.description ?? ""}', {dto.additional_fee}, TRUE, NOW())";
                 var result = await _db.ExecuteQuery(_config, query);
 
                 if (result > 0)
@@ -135,7 +138,7 @@ namespace backend.Controllers
                     });
                 }
 
-                var query = $"UPDATE zones SET created_by = '{dto.created_by}', name = '{dto.name}', description = '{dto.description ?? ""}', capacity = {dto.capacity}, additional_fee = {dto.additional_fee}, is_active = {(dto.is_active ? 1 : 0)}, updated_at = NOW() WHERE id = {id}";
+                var query = $"UPDATE zones SET name = '{dto.name}', description = '{dto.description ?? ""}', additional_fee = {dto.additional_fee}, is_active = {(dto.is_active ? 1 : 0)}, updated_at = NOW() WHERE id = {id}";
                 var result = await _db.ExecuteQuery(_config, query);
 
                 if (result > 0)

@@ -231,3 +231,10 @@ D:\ProjectAseli\ParkirUKK\backend\bin\Debug\net9.0\DotNetEnv.dll
 D:\ProjectAseli\ParkirUKK\backend\bin\Debug\net9.0\Sprache.dll
 D:\ProjectAseli\ParkirUKK\backend\bin\Debug\net9.0\Prometheus.NetStandard.dll
 D:\ProjectAseli\ParkirUKK\backend\bin\Debug\net9.0\Prometheus.AspNetCore.dll
+D:\ProjectAseli\ParkirUKK\backend\bin\Debug\net9.0\ClosedXML.dll
+D:\ProjectAseli\ParkirUKK\backend\bin\Debug\net9.0\ClosedXML.Parser.dll
+D:\ProjectAseli\ParkirUKK\backend\bin\Debug\net9.0\DocumentFormat.OpenXml.dll
+D:\ProjectAseli\ParkirUKK\backend\bin\Debug\net9.0\DocumentFormat.OpenXml.Framework.dll
+D:\ProjectAseli\ParkirUKK\backend\bin\Debug\net9.0\ExcelNumberFormat.dll
+D:\ProjectAseli\ParkirUKK\backend\bin\Debug\net9.0\RBush.dll
+D:\ProjectAseli\ParkirUKK\backend\bin\Debug\net9.0\System.IO.Packaging.dll

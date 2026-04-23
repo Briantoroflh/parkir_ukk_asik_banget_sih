@@ -8,16 +8,10 @@ namespace backend.DTOs.Zone
 {
     public class ZoneUpdateDto
     {
-        [Required(ErrorMessage = "Created by tidak boleh kosong")]
-        public string created_by { get; set; }
-
         [Required(ErrorMessage = "Name tidak boleh kosong")]
         public string name { get; set; }
 
         public string description { get; set; }
-
-        [Required(ErrorMessage = "Capacity tidak boleh kosong")]
-        public int capacity { get; set; }
 
         public int additional_fee { get; set; }
 

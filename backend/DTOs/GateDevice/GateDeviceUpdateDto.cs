@@ -15,9 +15,5 @@ namespace backend.DTOs.GateDevice
 
         [Required(ErrorMessage = "Status tidak boleh kosong")]
         public bool status { get; set; }
-
-        public DateTime? las_ping_at { get; set; }
-
-        public string error_message { get; set; }
     }
 }
