@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import React, { useState } from "react"
 import { authService } from "../services/AuthService"
 import { useAuth } from "../context/AuthContext"
-import { data, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import type { Users } from "../types"
 
 export function LoginForm({
@@ -46,14 +46,23 @@ export function LoginForm({
 
       if (result.status && result.data) {
         var dataUser: Users = {
-            name: result.data.name,
-            email: result.data.email,
-            is_active: result.data.is_active,
-            role_id: result.data.role_id
+          id: result.data.id,
+          name: result.data.name,
+          email: result.data.email,
+          is_active: result.data.is_active,
+          role_id: result.data.role_id
         }
 
         login(dataUser)
-        navigate('/dashboard')
+
+        const roleName = String(result.data.role?.name || '').toLowerCase()
+        if (roleName === 'tenant') {
+          navigate('/dashboard/tenant')
+        } else if (roleName === 'admin' || roleName === 'operator') {
+          navigate('/dashboard')
+        } else {
+          navigate('/dashboard')
+        }
       }
     } catch (err: unknown) {
       if (err instanceof Error) {

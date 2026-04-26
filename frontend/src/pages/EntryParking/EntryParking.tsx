@@ -236,6 +236,10 @@ function EntryParkingComponent({ uniqUrl }: EntryParkingProps) {
             setVehicleType('')
             // Re-focus RFID input untuk reader berikutnya
             rfidInputRef.current?.focus()
+        } else {
+            // Jika tap-in gagal, kosongkan RFID agar siap scan ulang.
+            setRfid('')
+            rfidInputRef.current?.focus()
         }
 
         setTimeout(() => setMessage(''), 5000)

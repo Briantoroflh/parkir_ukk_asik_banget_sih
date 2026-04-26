@@ -89,7 +89,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/role"), appBuilder => { appBuilder.UseRole("Admin"); });
+// app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/role"), appBuilder => { appBuilder.UseRole("Admin"); });
 app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/permission"), appBuilder => { appBuilder.UseRole("Admin"); });
 app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/role-permission"), appBuilder => { appBuilder.UseRole("Admin"); });
 

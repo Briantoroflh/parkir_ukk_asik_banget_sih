@@ -23,7 +23,7 @@ namespace backend.Controllers
             _db = db;
         }
 
-        // [Authorize]
+        [Authorize]
         [HttpGet("get-all")]
         public async Task<ActionResult<IEnumerable<GateDevice>>> GetAllGateDevices()
         {
@@ -109,7 +109,7 @@ namespace backend.Controllers
             }
         }
 
-        // [Authorize]
+        [Authorize]
         [HttpGet("device/{uniqUrl}")]
         public async Task<IActionResult> GetAllGateDevice(string uniqUrl)
         {
@@ -210,7 +210,7 @@ namespace backend.Controllers
             }
         }
 
-        // [Authorize]
+        [Authorize]
         [HttpPost("create-gate-device")]
         public async Task<ActionResult<GateDevice>> CreateGateDevice([FromBody] GateDeviceCreateDto dto)
         {

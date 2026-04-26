@@ -77,13 +77,13 @@ namespace backend.Controllers.Parking
                         });
                     }
 
-                    var gateData = $"""
+                    var gateData = $@"
                         SELECT gates.zone_id, fee_configs.id as fee_config_id,fee_configs.zone_id, fee_configs.vehicle_type_id, zones.name, fee_configs.base_fee
                         FROM gates 
                         RIGHT JOIN zones ON gates.zone_id = zones.id
                         RIGHT JOIN fee_configs ON fee_configs.zone_id = zones.id
                         WHERE zones.id = {zoneExisting.id} AND gates.id = {gateExisting.id}
-                    """;
+                    ";
                     var gateDataResult = await _db.QueryRelation(_config, gateData);
                     var gate = gateDataResult.FirstOrDefault();
 
@@ -124,7 +124,7 @@ namespace backend.Controllers.Parking
                             message = "Silahkan masuk!"
                         });
                     }
-                    else if (enteranceTracking > 0 && rfidDataResult.is_member == true && rfidDataResult.employee_id != null && rfidDataResult.is_guest == false)
+                    else if (enteranceTracking > 0 && rfidDataResult.is_member == true)
                     {
                         var plateExists = $"SELECT id ,plate_number FROM vehicles WHERE plate_number = '{dto.plate}'";
                         var plateExisting = await _db.ToSingleModel<Vehicle>(_config, plateExists);
@@ -142,39 +142,43 @@ namespace backend.Controllers.Parking
                         {
                             var vehicleExists = $"SELECT id, plate_number FROM vehicles WHERE id = {rfidDataResult.vehicle_id}";
                             var vehicleExisting = await _db.ToSingleModel<Vehicle>(_config, vehicleExists);
-
-
                         }
 
-                        var employeeExists = $"SELECT id, name, role_id FROM employees WHERE id = {rfidDataResult.employee_id}";
-                        var employeeExisting = await _db.ToSingleModel<Employee>(_config, employeeExists);
+                        Role? roleExisting = null;
 
-                        if (employeeExisting == null)
+                        if (rfidDataResult.employee_id != null)
                         {
-                            return NotFound(new
-                            {
-                                status = false,
-                                message = "Employee tidak terdaftar!"
-                            });
-                        }
+                            var employeeExists = $"SELECT id, name, role_id FROM employees WHERE id = {rfidDataResult.employee_id}";
+                            var employeeExisting = await _db.ToSingleModel<Employee>(_config, employeeExists);
 
-                        var roleExists = $"SELECT id, name FROM roles WHERE id = {employeeExisting.role_id}";
-                        var roleExisting = await _db.ToSingleModel<Role>(_config, roleExists);
-
-                        if (roleExisting == null)
-                        {
-                            return NotFound(new
+                            if (employeeExisting == null)
                             {
-                                status = false,
-                                message = "Role tidak diketahui!"
-                            });
+                                return NotFound(new
+                                {
+                                    status = false,
+                                    message = "Employee tidak terdaftar!"
+                                });
+                            }
+
+                            var roleExists = $"SELECT id, name FROM roles WHERE id = {employeeExisting.role_id}";
+                            roleExisting = await _db.ToSingleModel<Role>(_config, roleExists);
+
+                            if (roleExisting == null)
+                            {
+                                return NotFound(new
+                                {
+                                    status = false,
+                                    message = "Role tidak diketahui!"
+                                });
+                            }
                         }
 
                         return Ok(new
                         {
                             status = true,
-                            message = $"Selamat datang kembali {roleExisting.name}, semoga sukses untuk pekerjaan hari ini😁🎉."
+                            message = $"Selamat datang kembali {roleExisting?.name ?? "unknown"}, semoga sukses untuk pekerjaan hari ini😁🎉."
                         });
+
                     }
                     else
                     {

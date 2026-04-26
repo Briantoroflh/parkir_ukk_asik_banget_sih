@@ -308,7 +308,7 @@ class GateDeviceService {
                 }
             }
 
-            const token = Cookies.get('token')
+            const token = Cookies.get('accessToken')
 
             const deleteGateDeviceRequest = await fetch(
                 `${BASE_URL}/gate-device/delete-gate-device/${id}`,

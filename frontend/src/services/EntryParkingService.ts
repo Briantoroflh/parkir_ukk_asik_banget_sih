@@ -10,6 +10,12 @@ export interface EntryParkingRfidDto {
 }
 
 export interface ExitParkingRfidDto {
+    transaction_id: string
+    calculated_fee: number
+    gate: string
+}
+
+export interface CheckTransactionDto {
     rfid: string
     gate: string
 }
@@ -26,10 +32,18 @@ export interface EntryParkingRfidResponse {
 export interface ExitParkingRfidResponse {
     status: boolean
     message: string
+    data?: any
+    errors?: Object
+    error_detail?: string
+}
+
+export interface CheckTransactionResponse {
+    status: boolean
+    message: string
     data?: {
-        time_in: string
-        time_out: string
-        total_duration_parking: any
+        transaction_code: string
+        calculated_fee: number
+        vehicle_type: string
     }
     errors?: Object
     error_detail?: string
@@ -88,6 +102,35 @@ export interface GetDeviceGateResponse {
 }
 
 class EntryParkingService {
+    private async parseJsonResponse(request: Response): Promise<
+        | { ok: true; body: any }
+        | { ok: false; message: string; error_detail?: string }
+    > {
+        const contentType = request.headers.get('content-type')
+        if (!contentType?.includes('application/json')) {
+            const text = await request.text()
+            console.error('Backend returned non-JSON response:', contentType)
+            console.error('Response text:', text)
+            return {
+                ok: false,
+                message: 'Backend error - Invalid response format',
+                error_detail: text.substring(0, 200)
+            }
+        }
+
+        try {
+            const body = await request.json()
+            return { ok: true, body }
+        } catch (jsonError) {
+            console.error('Failed to parse JSON:', jsonError)
+            return {
+                ok: false,
+                message: 'Backend error - Failed to parse response',
+                error_detail: jsonError instanceof Error ? jsonError.message : 'Unknown parse error'
+            }
+        }
+    }
+
     async GetDeviceGate(uniqUrl: string): Promise<GetDeviceGateResponse> {
         try {
             if (!uniqUrl || uniqUrl.trim() === '') {
@@ -108,30 +151,16 @@ class EntryParkingService {
                 )
             )
 
-            // Check if response is actually JSON
-            const contentType = deviceRequest.headers.get('content-type')
-            if (!contentType?.includes('application/json')) {
-                console.error('Backend returned non-JSON response:', contentType)
-                const text = await deviceRequest.text()
-                console.error('Response text:', text)
+            const parsedResponse = await this.parseJsonResponse(deviceRequest)
+            if (!parsedResponse.ok) {
                 return {
                     status: false,
-                    message: 'Backend error - Invalid response format',
-                    error_detail: text.substring(0, 200)
+                    message: parsedResponse.message,
+                    error_detail: parsedResponse.error_detail
                 }
             }
 
-            let res
-            try {
-                res = await deviceRequest.json()
-            } catch (jsonError) {
-                console.error('Failed to parse JSON:', jsonError)
-                return {
-                    status: false,
-                    message: 'Backend error - Failed to parse response',
-                    error_detail: jsonError instanceof Error ? jsonError.message : 'Unknown parse error'
-                }
-            }
+            const res = parsedResponse.body
 
             console.log('GetDeviceGate Response:', res)
 
@@ -162,10 +191,10 @@ class EntryParkingService {
 
     async ExitRfid(dto: ExitParkingRfidDto): Promise<ExitParkingRfidResponse> {
         try {
-            if (!dto.rfid || dto.rfid.trim() === '') {
+            if (!dto.transaction_id || dto.transaction_id.trim() === '') {
                 return {
                     status: false,
-                    message: 'RFID tidak boleh kosong!'
+                    message: 'Transaction id tidak boleh kosong!'
                 }
             }
 
@@ -183,37 +212,24 @@ class EntryParkingService {
                 METADATA_API_SETTINGS(
                     'POST',
                     {
-                        rfid: dto.rfid,
-                        gate: dto.gate
+                        transaction_id: dto.transaction_id.trim(),
+                        calculated_fee: dto.calculated_fee,
+                        gate: dto.gate.trim()
                     },
                     token
                 )
             )
 
-            // Check if response is actually JSON
-            const contentType = exitRfidRequest.headers.get('content-type')
-            if (!contentType?.includes('application/json')) {
-                console.error('Backend returned non-JSON response:', contentType)
-                const text = await exitRfidRequest.text()
-                console.error('Response text:', text)
+            const parsedResponse = await this.parseJsonResponse(exitRfidRequest)
+            if (!parsedResponse.ok) {
                 return {
                     status: false,
-                    message: 'Backend error - Invalid response format',
-                    error_detail: text.substring(0, 200)
+                    message: parsedResponse.message,
+                    error_detail: parsedResponse.error_detail
                 }
             }
 
-            let res
-            try {
-                res = await exitRfidRequest.json()
-            } catch (jsonError) {
-                console.error('Failed to parse JSON:', jsonError)
-                return {
-                    status: false,
-                    message: 'Backend error - Failed to parse response',
-                    error_detail: jsonError instanceof Error ? jsonError.message : 'Unknown parse error'
-                }
-            }
+            const res = parsedResponse.body
 
             console.log('Exit RFID Response:', res)
 
@@ -233,6 +249,75 @@ class EntryParkingService {
             }
         } catch (err: unknown) {
             console.error('ExitRfid Error:', err)
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
+
+            return {
+                status: false,
+                message: errorMessage,
+                error_detail: err instanceof Error ? err.stack : undefined
+            }
+        }
+    }
+
+    async CheckTransaction(dto: CheckTransactionDto): Promise<CheckTransactionResponse> {
+        try {
+            if (!dto.rfid || dto.rfid.trim() === '') {
+                return {
+                    status: false,
+                    message: 'RFID tidak boleh kosong!'
+                }
+            }
+
+            if (!dto.gate || dto.gate.trim() === '') {
+                return {
+                    status: false,
+                    message: 'Gate harus diisi!'
+                }
+            }
+
+            const token = Cookies.get('accessToken')
+
+            const checkTransactionRequest = await fetch(
+                `${BASE_URL}/exit-parking/check-transaction`,
+                METADATA_API_SETTINGS(
+                    'POST',
+                    {
+                        rfid: dto.rfid.trim(),
+                        gate: dto.gate.trim()
+                    },
+                    token
+                )
+            )
+
+            const parsedResponse = await this.parseJsonResponse(checkTransactionRequest)
+            if (!parsedResponse.ok) {
+                return {
+                    status: false,
+                    message: parsedResponse.message,
+                    error_detail: parsedResponse.error_detail
+                }
+            }
+
+            const res = parsedResponse.body
+
+            console.log('Check Transaction Response:', res)
+
+            if (!res.status) {
+                return {
+                    status: res.status,
+                    message: res.message,
+                    errors: res.errors || null,
+                    error_detail: res.error_detail || null
+                }
+            }
+
+            return {
+                status: res.status,
+                message: res.message,
+                data: res.data
+            }
+        } catch (err: unknown) {
+            console.error('CheckTransaction Error:', err)
             const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
 
             return {
@@ -292,30 +377,16 @@ class EntryParkingService {
             )
 
             // ============ HANDLE RESPONSE ============
-            // Check if response is actually JSON
-            const contentType = entryRfidRequest.headers.get('content-type')
-            if (!contentType?.includes('application/json')) {
-                console.error('Backend returned non-JSON response:', contentType)
-                const text = await entryRfidRequest.text()
-                console.error('Response text:', text)
+            const parsedResponse = await this.parseJsonResponse(entryRfidRequest)
+            if (!parsedResponse.ok) {
                 return {
                     status: false,
-                    message: 'Backend error - Invalid response format',
-                    error_detail: text.substring(0, 200) // Show first 200 chars of error
+                    message: parsedResponse.message,
+                    error_detail: parsedResponse.error_detail
                 }
             }
 
-            let res
-            try {
-                res = await entryRfidRequest.json()
-            } catch (jsonError) {
-                console.error('Failed to parse JSON:', jsonError)
-                return {
-                    status: false,
-                    message: 'Backend error - Failed to parse response',
-                    error_detail: jsonError instanceof Error ? jsonError.message : 'Unknown parse error'
-                }
-            }
+            const res = parsedResponse.body
 
             console.log('Entry RFID Response:', res)
 
@@ -344,6 +415,8 @@ class EntryParkingService {
             }
         }
     }
+
+    
 }
 
 export default new EntryParkingService()

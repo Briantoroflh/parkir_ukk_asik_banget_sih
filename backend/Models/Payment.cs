@@ -28,8 +28,7 @@ namespace backend.Models
         public int cash_change { get; set; }
 
         [StringLength(100)]
-        [Required]
-        public string midtrans_order_id { get; set; }
+        public string? midtrans_order_id { get; set; }
 
         [StringLength(100)]
         public string? midtrans_transaction_id { get; set; }

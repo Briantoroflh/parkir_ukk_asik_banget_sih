@@ -7,6 +7,8 @@ using backend.Models;
 using backend.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using backend.DTOs.Parking.EntryParking;
+using System.Security.Claims;
 
 namespace backend.Controllers.Parking
 {
@@ -19,7 +21,8 @@ namespace backend.Controllers.Parking
 
         public ExitParkingController(IConfiguration configuration, DBHelper db)
         {
-            _config = configuration.GetConnectionString("DefaultConnection");
+            _config = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("DefaultConnection is not configured.");
             _db = db;
         }
 
@@ -29,37 +32,16 @@ namespace backend.Controllers.Parking
         {
             try
             {
-                if (string.IsNullOrEmpty(dto.rfid))
+                if (string.IsNullOrEmpty(dto.transaction_id))
                 {
                     return BadRequest(new
                     {
                         status = false,
-                        message = "RFID tidak boleh kosong!"
+                        message = "Transaction id tidak boleh kosong!"
                     });
                 }
 
-                if (string.IsNullOrEmpty(dto.gate))
-                {
-                    return BadRequest(new
-                    {
-                        status = false,
-                        message = "Gate harus diisi!"
-                    });
-                }
-
-                var rfidExists = $"SELECT id, card_uid, is_guest, is_member, employee_id FROM rfid_cards WHERE card_uid = '{dto.rfid}'";
-                var rfidExisting = await _db.ToSingleModel<RfidCard>(_config, rfidExists);
-
-                if (rfidExisting == null)
-                {
-                    return NotFound(new
-                    {
-                        status = false,
-                        message = "RFID tidak terdaftar!"
-                    });
-                }
-
-                var gateExists = $"SELECT id, name, zone_id FROM gates WHERE name = '{dto.gate}'";
+                var gateExists = $"SELECT id, name FROM gates WHERE name = '{dto.gate}'";
                 var gateExisting = await _db.ToSingleModel<Gate>(_config, gateExists);
 
                 if (gateExisting == null)
@@ -67,87 +49,64 @@ namespace backend.Controllers.Parking
                     return NotFound(new
                     {
                         status = false,
-                        message = "Gate tidak ditemukan!"
+                        message = "Gate tidak di temukan!"
                     });
                 }
 
-                var zoneExists = $"SELECT id, name FROM zones WHERE id = '{gateExisting.zone_id}'";
-                var zoneExisting = await _db.ToSingleModel<Zone>(_config, zoneExists);
+                var updateTransaction = $@"
+                    UPDATE transactions SET exit_gate_id = {gateExisting.id}, exit_method = 'rfid', exit_at = NOW(), calculated_fee = {dto.calculated_fee}, status = 'paid' 
+                    WHERE transaction_code = '{dto.transaction_id}'
+                ";
+                var updateTransactionRes = await _db.ExecuteQuery(_config, updateTransaction);
 
-                if (zoneExisting == null)
+                var transactionExits = $"SELECT id, transaction_code, rfid_card_id FROM transactions WHERE transaction_code = '{dto.transaction_id}'";
+                var transactionExisting = await _db.ToSingleModel<Transaction>(_config, transactionExits);
+
+                if (transactionExisting == null)
                 {
                     return NotFound(new
                     {
                         status = false,
-                        message = "Zone tidak ditemukan!"
+                        message = "Transaksi tidak di temukan!"
                     });
                 }
 
-                var gateData = $"""
-                    SELECT 
-                        gates.zone_id, 
-                        fee_configs.zone_id,
-                        fee_configs.vehicle_type_id, 
-                        zones.name, 
-                        fee_configs.base_fee
-                    FROM gates 
-                    RIGHT JOIN zones ON gates.zone_id = zones.id
-                    RIGHT JOIN fee_configs ON fee_configs.zone_id = zones.id
-                    WHERE zones.id = {zoneExisting.id} AND gates.id = {gateExisting.id}
-                """;
-                var gateDataResult = await _db.QueryRelation(_config, gateData);
-                var gate = gateDataResult.FirstOrDefault();
-
-                var enteranceExists = $"SELECT id, transaction_code, rfid_card_id, entry_at FROM transactions WHERE rfid_card_id = {rfidExisting.id} AND exit_at IS NULL";
-                var enteranceExisting = await _db.ToSingleModel<Transaction>(_config, enteranceExists);
-
-                if (enteranceExisting != null)
+                var userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userClaim))
                 {
-                    var currentTime = DateTime.Now;
-                    DateTime inAt = Convert.ToDateTime(enteranceExisting.entry_at);
-                    var parkingDuration = currentTime - inAt;
-
-                    Console.WriteLine(parkingDuration);
-
-                    var holidayRateExists = $"SELECT name, date_start, date_aend, rate_type, multiplier, override_fee FROM holiday_rates WHERE applies_to_zone_id = {zoneExisting.id} AND applies_to_vehicle_type_id = {gate?.vehicle_type_id}";
-                    var holidayRateResult = await _db.ToSingleModel<HolidayRate>(_config, holidayRateExists);
-
-                    decimal baseFee = gate?.base_fee != null ? Convert.ToDecimal(gate.base_fee) : 0;
-                    if(holidayRateResult != null && holidayRateResult.override_fee != 0)
+                    return Unauthorized(new
                     {
-                        baseFee += holidayRateResult.override_fee;
-                    }
+                        status = false,
+                        message = "User tidak terautentikasi!"
+                    });
+                }
 
-                    if(holidayRateResult != null && holidayRateResult.multiplier != 0)
+                var insertToPayment = $@"
+                        INSERT INTO payments
+                        (transaction_id, method, amount, status, cash_tendered, cash_change, paid_at, created_at, handled_by_user_id) 
+                        VALUES
+                        ({transactionExisting.id}, 'rfid', {dto.calculated_fee}, 'success', {dto.calculated_fee}, 0, NOW(), NOW(), {userClaim})
+                ";
+                var insertToPaymentRes = await _db.ExecuteQuery(_config, insertToPayment);
+
+                var rfidCardExits = $"SELECT id ,card_uid, is_member, is_guest FROM rfid_cards WHERE id = {transactionExisting.rfid_card_id}";
+                var rfidCardExisting = await _db.ToSingleModel<RfidCard>(_config, rfidCardExits);
+
+                if (insertToPaymentRes > 0 && rfidCardExisting.is_guest == true)
+                {
+                    return Ok(new
                     {
-                        baseFee *= (int)holidayRateResult.multiplier;
-                    }
-                    Console.WriteLine(baseFee);
+                        status = true,
+                        message = "Selamat Jalan, Semoga selamat sampai tujuan!"
+                    });
+                }
+                else if (insertToPaymentRes > 0 && rfidCardExisting.is_member == true)
+                {
+                    Role? roleExisting = null;
 
-                    int totalHours = (int)Math.Ceiling(parkingDuration.TotalHours);
-                    decimal calculatedFee = baseFee * totalHours;
-                    Console.WriteLine(calculatedFee);
-
-                    var enteranceExitOutTime = $"UPDATE transactions SET exit_gate_id = {gateExisting.id}, exit_method = 'rfid', exit_at = NOW(), calculated_fee = {calculatedFee}, status = 'paid', updated_at = NOW() WHERE rfid_card_id = {rfidExisting.id} AND transaction_code = '{enteranceExisting.transaction_code}'";
-                    var exitOutTime = await _db.ExecuteQuery(_config, enteranceExitOutTime);
-
-                    if (rfidExisting.is_guest == true)
+                    if (rfidCardExisting.employee_id != null)
                     {
-                        return Ok(new
-                        {
-                            status = true,
-                            message = "Terima kasih sudah percaya kepada kami. semoga selamat sampai tujuan.",
-                            data = new
-                            {
-                                time_in = inAt,
-                                time_out = currentTime,
-                                total_duration_parking = parkingDuration
-                            }
-                        });
-                    }
-                    else if (rfidExisting.is_member == true && rfidExisting.employee_id != null)
-                    {
-                        var employeeExists = $"SELECT id, name, role_id FROM employees WHERE id = {rfidExisting.employee_id}";
+                        var employeeExists = $"SELECT id, name, role_id FROM employees WHERE id = {rfidCardExisting.employee_id}";
                         var employeeExisting = await _db.ToSingleModel<Employee>(_config, employeeExists);
 
                         if (employeeExisting == null)
@@ -160,7 +119,7 @@ namespace backend.Controllers.Parking
                         }
 
                         var roleExists = $"SELECT id, name FROM roles WHERE id = {employeeExisting.role_id}";
-                        var roleExisting = await _db.ToSingleModel<Role>(_config, roleExists);
+                        roleExisting = await _db.ToSingleModel<Role>(_config, roleExists);
 
                         if (roleExisting == null)
                         {
@@ -170,35 +129,189 @@ namespace backend.Controllers.Parking
                                 message = "Role tidak diketahui!"
                             });
                         }
-
-                        return Ok(new
-                        {
-                            status = true,
-                            message = $"Terima kasih {roleExisting.name} sudah bekerja dengan baik. semoga selamat sampai tujuan.",
-                            data = new
-                            {
-                                time_in = inAt,
-                                time_out = currentTime,
-                                total_duration_parking = parkingDuration
-                            }
-                        });
-
                     }
-                    else
+
+                    return Ok(new
                     {
-                        return NotFound(new
-                        {
-                            status = false,
-                            message = "Kartu yang anda tap-in tidak diketahui!"
-                        });
-                    }
+                        status = true,
+                        message = $"Selamat jalan {(roleExisting?.name ?? "Member")}, semoga selamat sampai tujuan!."
+                    });
                 }
                 else
+                {
+                    return StatusCode(500, new
+                    {
+                        status = false,
+                        message = "Terjadi kesalahan!"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = false,
+                    message = $"{ex.Message}"
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("check-transaction")]
+        public async Task<IActionResult> CheckTransaction([FromBody] CheckTransactionRequestDto dto)
+        {
+            try
+            {
+                var rfidExits = $@"
+                    SELECT
+                        id,
+                        card_uid
+                    FROM rfid_cards
+                    WHERE card_uid = '{dto.rfid}'
+                ";
+                var rfidExisting = await _db.ToSingleModel<RfidCard>(_config, rfidExits);
+
+                if (rfidExisting == null)
                 {
                     return NotFound(new
                     {
                         status = false,
-                        message = "Kartu anda mungkin belum di tap-in🤔."
+                        message = "Rfid Tidak ditemukan!"
+                    });
+                }
+
+                var gateExists = $@"
+                        SELECT 
+                            zone_id, 
+                            name, 
+                            is_active
+                        FROM gates
+                        WHERE name = '{dto.gate}' AND is_active = TRUE";
+                var gateExisting = await _db.ToSingleModel<Gate>(_config, gateExists);
+
+                if (gateExisting == null)
+                {
+                    return NotFound(new
+                    {
+                        status = false,
+                        message = "Exit gate tidak ditemukan!"
+                    });
+                }
+
+                var transactionExists = $@"
+                    SELECT
+                        t.transaction_code,
+                        t.entry_gate_id,
+                        t.entry_at,
+                        t.status,
+                        rf.card_uid,
+                        rf.is_guest,
+                        rf.is_member,
+                        rf.employee_id,
+                        rf.pic_tenant_id,
+                        vt.name AS vehicle_type_name,
+                        vt.minimum_fee,
+                        g.zone_id,
+                        g.name AS gate_name,
+                        z.id AS zone_,
+                        z.name AS zone_name,
+                        z.additional_fee,
+                        z.is_active,
+                        fc.base_fee,
+                        fc.grace_period_minutes,
+                        fc.is_active
+                    FROM transactions t
+                    LEFT JOIN rfid_cards rf ON t.rfid_card_id = rf.id
+                    LEFT JOIN vehicle_types vt ON t.vehicle_type_id = vt.id
+                    LEFT JOIN gates g ON t.entry_gate_id = g.id
+                    INNER JOIN zones z ON g.zone_id = z.id
+                    INNER JOIN fee_configs fc ON fc.zone_id = z.id
+                    WHERE t.rfid_card_id = {rfidExisting.id} 
+                        AND z.is_active = TRUE
+                        AND fc.is_active = TRUE
+                        AND t.status = 'active'
+                ";
+                var transactionExisting = await _db.QueryRelation(_config, transactionExists);
+
+                if (transactionExisting == null || !transactionExisting.Any())
+                {
+                    return NotFound(new
+                    {
+                        status = false,
+                        message = "mungkin kartu anda belum di tap-in"
+                    });
+                }
+
+                var dataTransaction = transactionExisting.FirstOrDefault();
+
+                if (dataTransaction == null)
+                {
+                    return NotFound(new
+                    {
+                        status = false,
+                        message = "mungkin kartu anda belum di tap-in"
+                    });
+                }
+
+                if (dataTransaction?.zone_ != gateExisting.zone_id)
+                {
+                    return StatusCode(422, new
+                    {
+                        status = false,
+                        message = "Zona keluar tidak sesuai dengan zona yang anda masuki di awal⚠️"
+                    });
+                }
+
+                Dictionary<string, dynamic> data = new Dictionary<string, dynamic>();
+
+                var currentTime = DateTime.Now;
+
+                try
+                {
+                    var calculatedFee = 0m;
+
+                    if(dataTransaction?.is_guest == true)
+                    {
+                        TimeSpan duration = currentTime - dataTransaction?.entry_at;
+                        decimal totalHours = (decimal)Math.Ceiling(duration.TotalHours);
+
+                        var baseFee = dataTransaction?.minimum_fee;
+
+                        if (dataTransaction?.additional_fee != 0)
+                        {
+                            baseFee += dataTransaction?.additional_fee;
+                        }
+
+                        if (dataTransaction?.base_fee != 0)
+                        {
+                            baseFee += dataTransaction?.base_fee;
+                        }
+
+                        calculatedFee = totalHours * baseFee;
+                    }else if(dataTransaction?.is_member == true && dataTransaction?.employee_id != 0 || dataTransaction?.pic_tenant_id)
+                    {
+                        calculatedFee = 0;
+                    }
+
+                    
+
+                    data.Add("transaction_code", dataTransaction?.transaction_code);
+                    data.Add("calculated_fee", calculatedFee);
+                    data.Add("vehicle_type", dataTransaction?.vehicle_type_name);
+
+                    return Ok(new
+                    {
+                        status = true,
+                        message = "Data berhasil di ambil!",
+                        data = data
+                    });
+                }
+                catch (OverflowException)
+                {
+                    return StatusCode(500, new
+                    {
+                        status = false,
+                        message = "Rentang waktu terlalu besar!"
                     });
                 }
 

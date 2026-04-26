@@ -1,5 +1,6 @@
 import { BASE_URL, METADATA_API_SETTINGS } from "../types"
 import Cookies from 'js-cookie'
+import RoleService from "./RoleService"
 
 interface LoginDto {
     email: string,
@@ -48,14 +49,23 @@ class AuthService {
 
             const res = await postLogin.json();
 
-            if(!res.ok) {
-                const data: LoginResponse = {
-                    status: res.status,
-                    message: res.message
+            if (!postLogin.ok || !res.status) {
+                return {
+                    status: res.status ?? false,
+                    message: res.message ?? 'Login gagal!',
+                    errors: res.errors
                 }
             }
 
-           Cookies.set("accessToken", res.accessToken, {
+            let roleData: any = null
+            if (res.data?.role_id) {
+                const roleRes = await RoleService.GetRoleById(res.data.role_id)
+                if (roleRes.status) {
+                    roleData = roleRes.data
+                }
+            }
+
+            Cookies.set("accessToken", res.accessToken, {
                 expires: 1 / 24,
                 secure: true,
                 sameSite: 'Strict'
@@ -70,10 +80,15 @@ class AuthService {
             const data: LoginResponse = {
                 status: res.status,
                 message: res.message,
-                data: res.data,
+                data: {
+                    ...res.data,
+                    role: roleData
+                },
                 token: res.accessToken,
                 refreshToken: res.refreshToken
             }
+
+            console.log(data);            
 
             return data;
         }catch(err: unknown) {
@@ -113,6 +128,8 @@ class AuthService {
             })
 
             const res = await response.json();
+
+            console.log(res);
 
             if (!res.status && response.status === 401) {
                 // Refresh token expired, clear cookies dan redirect ke login

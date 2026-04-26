@@ -1,7 +1,7 @@
 import { CreditCard } from 'lucide-react'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import type { ExitParkingRfidDto, ExitParkingRfidResponse, GetDeviceGateResponse } from '../../services/EntryParkingService'
+import type { CheckTransactionDto, CheckTransactionResponse, ExitParkingRfidDto, ExitParkingRfidResponse, GetDeviceGateResponse } from '../../services/EntryParkingService'
 import EntryParkingService from '../../services/EntryParkingService'
 
 interface EntryParkingProps {
@@ -11,7 +11,6 @@ interface EntryParkingProps {
 function EntryParkingComponent({ uniqUrl }: EntryParkingProps) {
     const rfidInputRef = useRef<HTMLInputElement>(null)
     const intervalId = useRef<any>(null)
-    const rfidDebounceTimeout = useRef<any>(null)
 
     // State management
     const [currentSlide, setCurrentSlide] = useState(0)
@@ -27,6 +26,15 @@ function EntryParkingComponent({ uniqUrl }: EntryParkingProps) {
     const [messageType, setMessageType] = useState<'info' | 'success' | 'error'>('info')
     const [deviceLoading, setDeviceLoading] = useState(true)
     const [deviceError, setDeviceError] = useState('')
+    const [checkTransactionData, setCheckTransactionData] = useState<CheckTransactionResponse['data'] | null>(null)
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            maximumFractionDigits: 0
+        }).format(amount)
+    }
 
     // Fetch device data
     const fetchDeviceData = async () => {
@@ -68,11 +76,21 @@ function EntryParkingComponent({ uniqUrl }: EntryParkingProps) {
             setTimeout(() => setMessage(''), 3000)
             return
         }
+        console.log(checkTransactionData);
+        
+
+        if (!checkTransactionData?.transaction_code) {
+            setMessage('Data transaksi belum tersedia, silakan check transaksi terlebih dahulu!')
+            setMessageType('error')
+            setTimeout(() => setMessage(''), 3000)
+            return
+        }
 
         setLoading(true)
 
         const dto: ExitParkingRfidDto = {
-            rfid: rfid.trim(),
+            transaction_id: checkTransactionData.transaction_code,
+            calculated_fee: checkTransactionData.calculated_fee,
             gate: gate.trim()
         }
 
@@ -85,11 +103,54 @@ function EntryParkingComponent({ uniqUrl }: EntryParkingProps) {
         if (response.status) {
             // Clear RFID field
             setRfid('')
+            setCheckTransactionData(null)
             // Re-focus RFID input untuk reader berikutnya
+            rfidInputRef.current?.focus()
+        } else {
+            // Jika tap keluar gagal, kosongkan RFID agar siap scan ulang.
+            setRfid('')
             rfidInputRef.current?.focus()
         }
 
         setTimeout(() => setMessage(''), 5000)
+    }, [rfid, gate, checkTransactionData])
+
+    const handleCheckTransaction = useCallback(async () => {
+        if (!rfid.trim() || !gate.trim()) {
+            setMessage('RFID dan Gate harus diisi!')
+            setMessageType('error')
+            setTimeout(() => setMessage(''), 3000)
+            return false
+        }
+
+        setLoading(true)
+
+        const dto: CheckTransactionDto = {
+            rfid: rfid.trim(),
+            gate: gate.trim()
+        }
+
+        const response: CheckTransactionResponse = await EntryParkingService.CheckTransaction(dto)
+
+        setLoading(false)
+        setMessage(response.message)
+        setMessageType(response.status ? 'success' : 'error')
+
+        if (response.status && response.data) {
+            setCheckTransactionData(response.data)
+            // Kosongkan input agar tap berikutnya benar-benar menjadi konfirmasi keluar.
+            setRfid('')
+            setMessage('Data transaksi ditemukan, tap kartu sekali lagi untuk keluar.')
+            setMessageType('info')
+            setTimeout(() => setMessage(''), 5000)
+            return true
+        }
+
+        setCheckTransactionData(null)
+        setRfid('')
+        rfidInputRef.current?.focus()
+        setTimeout(() => setMessage(''), 5000)
+        return false
     }, [rfid, gate])
 
     // Handle RFID keyboard input with useCallback
@@ -98,7 +159,11 @@ function EntryParkingComponent({ uniqUrl }: EntryParkingProps) {
         if (e.key === 'Enter') {
             e.preventDefault()
             if (rfid.trim() !== '' && gate.trim() !== '' && !loading) {
-                handleExitRfid()
+                if (checkTransactionData) {
+                    handleExitRfid()
+                } else {
+                    handleCheckTransaction()
+                }
             }
             return
         }
@@ -107,7 +172,7 @@ function EntryParkingComponent({ uniqUrl }: EntryParkingProps) {
         if (document.activeElement !== rfidInputRef.current) {
             rfidInputRef.current?.focus()
         }
-    }, [rfid, gate, loading, handleExitRfid])
+    }, [rfid, gate, loading, checkTransactionData, handleExitRfid, handleCheckTransaction])
 
     // Handle input change
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,6 +289,16 @@ function EntryParkingComponent({ uniqUrl }: EntryParkingProps) {
 
                     <div className='w-1/2 h-full'>
                         <div className='flex flex-col text-center justify-center h-full p-10'>
+                            <div className='m-auto'>
+                                {checkTransactionData && (
+                                    <div className='mb-4 text-left bg-opacity-20 rounded-lg p-4 text-white'>
+                                        <p className='font-bold text-2xl mb-2 text-center'>Detail Transaksi</p>
+                                        <p><span className='font-semibold text-lg'>Kode:</span> {checkTransactionData.transaction_code}</p>
+                                        <p><span className='font-semibold text-lg'>Jenis Kendaraan:</span> {checkTransactionData.vehicle_type}</p>
+                                        <p><span className='font-semibold text-lg'>Biaya:</span> {formatCurrency(checkTransactionData.calculated_fee)}</p>
+                                    </div>
+                                )}
+                            </div>
                             <div className='m-auto mb-6'>
                                 <CreditCard size={100} color='white' />
                             </div>
@@ -266,7 +341,7 @@ function EntryParkingComponent({ uniqUrl }: EntryParkingProps) {
                             )}
 
                             <div className='text-white font-semibold mt-6'>
-                                <span>Tapin kartu anda</span>
+                                <span>{checkTransactionData ? 'Tap kartu lagi untuk konfirmasi keluar' : 'Tapin kartu anda'}</span>
                             </div>
                         </div>
                     </div>

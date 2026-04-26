@@ -54,6 +54,14 @@ const data = {
           url: "/dashboard/master-data/gate",
         },
         {
+          title: "Employees",
+          url: "/dashboard/master-data/employee",
+        },
+        {
+          title: "Roles",
+          url: "/dashboard/master-data/role",
+        },
+        {
           title: "Vehicle Types",
           url: "/dashboard/master-data/vehicle-type",
         },
@@ -65,22 +73,26 @@ const data = {
           title: "Fee Configs",
           url: "/dashboard/master-data/fee-config",
         },
-      ],
-    },
-    {
-      title: "Report",
-      url: "#",
-      icon: (
-        <BookOpenIcon
-        />
-      ),
-      items: [
         {
-          title: "Cashflow",
-          url: "#",
+          title: "Rfid Cards",
+          url: "/dashboard/master-data/rfid-card",
         },
       ],
     },
+    // {
+    //   title: "Report",
+    //   url: "#",
+    //   icon: (
+    //     <BookOpenIcon
+    //     />
+    //   ),
+    //   items: [
+    //     {
+    //       title: "Cashflow",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
     {
       title: "Features",
       url: "#",
@@ -92,13 +104,17 @@ const data = {
           title: "Gate Devices",
           url: "/dashboard/feature/gate-device",
         },
+        // {
+        //   title: "Holiday Rates",
+        //   url: "/dashboard/feature/holiday-rate",
+        // },
         {
-          title: "Holiday Rates",
-          url: "/dashboard/feature/holiday-rate",
+          title: "Member Packages",
+          url: "/dashboard/feature/membership-package",
         },
         {
-          title: "Member",
-          url: "/dashboard/feature/holiday-rate",
+          title: "Tenant Members",
+          url: "/dashboard/feature/tenant-member",
         },
       ],
     }

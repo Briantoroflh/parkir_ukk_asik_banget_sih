@@ -23,6 +23,7 @@ export const METADATA_API_SETTINGS = (method: string, data?: object | null, toke
 }
 
 export interface Users {
+    id: number,
     name: string,
     email: string,
     is_active: boolean,

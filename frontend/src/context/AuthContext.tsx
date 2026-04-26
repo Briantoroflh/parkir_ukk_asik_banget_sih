@@ -12,7 +12,19 @@ interface AuthContextType {
     refreshToken: () => Promise<boolean>
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const defaultAuthContext: AuthContextType = {
+    user: null,
+    isLoading: true,
+    login: () => {
+        // no-op fallback when component renders outside provider
+    },
+    logout: () => {
+        // no-op fallback when component renders outside provider
+    },
+    refreshToken: async () => false
+}
+
+export const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
 const isTokenExpired = (token: string | undefined): boolean => {
     if (!token) return true;
@@ -20,7 +32,7 @@ const isTokenExpired = (token: string | undefined): boolean => {
     try {
         const decoded: any = jwtDecode(token);
         console.log(decoded);
-        
+
         const currentTime = Date.now() / 1000; // Convert ke detik
         return decoded.exp < currentTime;
     } catch (error) {
@@ -98,7 +110,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (user) {
             refreshIntervalRef.current = setInterval(() => {
                 refreshAccessToken();
-            }, 10 * 60 * 1000);
+            }, 5 * 60 * 1000);
         }
 
         return () => {
@@ -118,8 +130,5 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 // Custom hook untuk menggunakan AuthContext
 export const useAuth = () => {
     const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
     return context;
 };

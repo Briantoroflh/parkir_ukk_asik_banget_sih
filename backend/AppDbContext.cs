@@ -20,8 +20,6 @@ namespace backend
         public DbSet<Zone> zones { get; set; }
         public DbSet<Users> users { get; set; }
         public DbSet<Employee> employees { get; set; }
-        public DbSet<OcrConfigs> ocr_configs { get; set; }
-        public DbSet<OverrideConfigs> override_configs { get; set; }
 
         // Level 2: Master configurations
         public DbSet<HolidayRate> holiday_rates { get; set; }
@@ -32,6 +30,8 @@ namespace backend
         public DbSet<UserSession> user_sessions { get; set; }
         public DbSet<UserLoginLogs> user_login_logs { get; set; }
         public DbSet<UserLoginStats> user_login_stats { get; set; }
+
+        public DbSet<MembershipPackage> membership_packages { get; set; }
 
         // Level 4: Tenant & Membership
         public DbSet<TenantMember> tenant_members { get; set; }
@@ -49,11 +49,6 @@ namespace backend
         // Level 6: Payment
         public DbSet<Payment> payments { get; set; }
         public DbSet<MidtransCallback> midtrans_callbacks { get; set; }
-        public DbSet<Refund> refunds { get; set; }
-
-        // Level 7: OCR & Review
-        public DbSet<OcrResults> ocr_results { get; set; }
-        public DbSet<OcrReviewLogs> ocr_review_logs { get; set; }
 
         // Level 8: Audit & Logs
         public DbSet<AuditLogs> audit_logs { get; set; }

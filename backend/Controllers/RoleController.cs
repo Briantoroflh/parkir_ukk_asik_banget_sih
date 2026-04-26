@@ -19,10 +19,12 @@ namespace backend.Controllers
 
         public RoleController(IConfiguration configuration, DBHelper db)
         {
-            _config = configuration.GetConnectionString("DefaultConnection");
+            _config = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("DefaultConnection is not configured.");
             _db = db;
         }
 
+        [Authorize]
         [HttpGet("get-all")]
         public async Task<ActionResult<IEnumerable<Role>>> GetAllRole()
         {
@@ -49,6 +51,50 @@ namespace backend.Controllers
                         message = "Tidak ada data role yang ditemukan!"
                     });
                 }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = false,
+                    message = "Terjadi kesalahan server: " + ex.Message
+                });
+            }
+        }
+
+        // [Authorize]
+        [HttpGet("get-role/{id}")]
+        public async Task<ActionResult<Role>> GetRoleById(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        status = false,
+                        message = "ID role tidak valid!"
+                    });
+                }
+
+                var query = $"SELECT * FROM roles WHERE id = {id} LIMIT 1";
+                var result = await _db.ToSingleModel<Role>(_config, query);
+
+                if (result != null)
+                {
+                    return Ok(new
+                    {
+                        status = true,
+                        message = "Data role ditemukan!",
+                        data = result
+                    });
+                }
+
+                return NotFound(new
+                {
+                    status = false,
+                    message = $"Role dengan id {id} tidak ditemukan!"
+                });
             }
             catch (Exception ex)
             {
@@ -108,6 +154,8 @@ namespace backend.Controllers
                 });
             }
         }
+
+
 
         [Authorize]
         [HttpPut("update-role/{id}")]

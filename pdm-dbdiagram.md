@@ -1,31 +1,36 @@
-Table Zone {
-  id int [pk, increment]
-  created_by varchar
-  name varchar
-  description varchar
-  capacity int
-  additional_fee int
-  is_active boolean
-  created_at datetime
-  updated_at datetime
+Table AuditLogExports {
+  Id uuid [pk]
+  ExportFormat varchar
+  FilePath varchar
+  DateRangeStart datetime
+  DateRangeEnd datetime
+  TotalRecords int
+  ExportStatus varchar
+  ExportedAt datetime
+  ExportedBy uuid
 }
 
-Table VehicleTypes {
-  id int [pk, increment]
-  name varchar
-  minimum_fee int
-  description varchar
-  created_at datetime
+Table AuditLogs {
+  Id uuid [pk]
+  EventType varchar
+  ActorRole varchar
+  TargetType varchar
+  TargetId uuid
+  BeforeState text
+  AfterState text
+  IpAddress varchar
+  UserAgent text
+  CreatedAt datetime
+  ActorId uuid
 }
 
-Table Vehicle {
+Table Employee {
   id int [pk, increment]
-  plate_number varchar
-  vehicle_type_id int [ref: > VehicleTypes.id]
-  source varchar
-  notes varchar
+  name varchar
+  role_id int [ref: > Role.id]
   created_at datetime
   updated_at datetime
+  deleted_at datetime
 }
 
 Table FeeConfig {
@@ -42,19 +47,10 @@ Table FeeConfig {
   updated_at datetime
 }
 
-Table FeeTier {
-  id int [pk, increment]
-  fee_config_id int [ref: > FeeConfig.id]
-  tier_order int
-  duration_minutes int
-  fee_amount int
-  is_last_tier boolean
-}
-
 Table Gate {
   id int [pk, increment]
   created_by varchar
-  zone_id int
+  zone_id int [ref: > Zone.id]
   name varchar
   gate_type varchar
   location_desc varchar
@@ -66,12 +62,24 @@ Table Gate {
 Table GateDevice {
   id int [pk, increment]
   gate_id int [ref: > Gate.id]
+  uniqUrl varchar
   device_type varchar
   status boolean
   las_ping_at datetime
   error_message text
   created_at datetime
   updated_at datetime
+}
+
+Table GateDeviceAds {
+  id int [pk, increment]
+  gate_device_id int [ref: > GateDevice.id]
+  image text
+  title varchar
+  company varchar
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
 }
 
 Table HolidayRate {
@@ -89,75 +97,27 @@ Table HolidayRate {
   applies_to_vehicle_type_id int [ref: > VehicleTypes.id]
 }
 
-Table RfidCard {
+Table MembershipPackage {
   id int [pk, increment]
-  deactivated_by varchar
-  card_uid varchar
-  vehicle_id int
-  is_active boolean
-  created_at datetime
-  deactivated_at datetime
-}
-
-Table Role {
-  id int [pk, increment]
-  created_by varchar
-  name varchar
-  description varchar
-  created_at datetime
-  updated_at datetime
-  deleted_at datetime
-}
-
-Table Users {
-  id int [pk, increment]
-  name varchar
-  email varchar
-  password_hash varchar
+  package_name varchar
+  price int
+  time_period_month int
   is_active boolean
   created_at datetime
   updated_at datetime
   deleted_at datetime
-  role_id int [ref: > Role.id]
 }
 
-Table Permission {
+Table MidtransCallback {
   id int [pk, increment]
-  node varchar [unique]
-  description varchar
-  created_at datetime
-}
-
-Table RolePermission {
-  id int [pk, increment]
-  granted_by varchar
-  role_id int [ref: > Role.id]
-  permission_id int [ref: > Permission.id]
-  granted_at datetime
-}
-
-Table Transaction {
-  id int [pk, increment]
-  transaction_code varchar
-  entry_method varchar
-  entry_qr_code varchar
-  entry_at datetime
-  entry_photo_url text
-  entry_gate_id int [ref: > Gate.id]
-  exit_gate_id int [ref: > Gate.id]
-  exit_method varchar
-  exit_at datetime
-  calculated_fee int
-  status varchar
-  receipt_printed boolean
-  receipt_printed_at datetime
-  created_at datetime
-  holiday_rate_id int [ref: > HolidayRate.id]
-  updated_at datetime
-  zone_id int [ref: > Zone.id]
-  vehicle_id int [ref: > Vehicle.id]
-  rfid_card_id int [ref: > RfidCard.id]
-  fee_config_id int [ref: > FeeConfig.id]
+  payment_id int [ref: > Payment.id]
+  midtrans_order_id varchar
+  raw_payload json
+  signature_valid boolean
+  processed boolean
+  processed_at datetime
+  received_at datetime
+  error_message text
 }
 
 Table Payment {
@@ -179,38 +139,91 @@ Table Payment {
   handled_by_user_id int [ref: > Users.id]
 }
 
-Table MidtransCallback {
+Table Permission {
   id int [pk, increment]
-  payment_id int [ref: > Payment.id]
-  midtrans_order_id varchar
-  raw_payload json
-  signature_valid boolean
-  processed boolean
-  processed_at datetime
-  received_at datetime
-  error_message text
+  node varchar [unique]
+  description varchar
+  created_at datetime
 }
 
-Table Refund {
+Table RfidCard {
   id int [pk, increment]
-  payment_id int [ref: > Payment.id]
-  transaction_id int [ref: > Transaction.id]
-  refund_amount int
-  reason text
-  status varchar
-  midtrans_refund_id varchar
-  processed_at datetime
+  card_uid varchar
+  vehicle_id int [ref: > Vehicle.id]
+  is_guest boolean
+  is_member boolean
+  employee_id int [ref: > Employee.id]
+  pic_tenant_id int [ref: > TenantMember.id]
+  deactivated_by varchar
+  created_at datetime
+  deactivated_at datetime
+}
+
+Table Role {
+  id int [pk, increment]
+  created_by varchar
+  name varchar
+  description varchar
   created_at datetime
   updated_at datetime
-  requested_by int [ref: > Users.id]
-  approved_by int [ref: > Users.id]
+  deleted_at datetime
+}
+
+Table RolePermission {
+  id int [pk, increment]
+  granted_by varchar
+  role_id int [ref: > Role.id]
+  permission_id int [ref: > Permission.id]
+  granted_at datetime
+}
+
+Table TenantMember {
+  id int [pk, increment]
+  pic varchar
+  tenant_name varchar
+  status_membership varchar
+  total_bill int
+  total_current_payment int
+  is_active boolean
+  membership_id int [ref: > MembershipPackage.id]
+  start_at datetime
+  due_at datetime
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+Table Transaction {
+  id int [pk, increment]
+  transaction_code varchar
+  entry_method varchar
+  entry_qr_code varchar
+  entry_at datetime
+  entry_photo_url text
+  entry_gate_id int [ref: > Gate.id]
+  exit_gate_id int [ref: > Gate.id]
+  exit_method varchar
+  exit_at datetime
+  calculated_fee int
+  total_payment int
+  status varchar
+  receipt_printed boolean
+  receipt_printed_at datetime
+  vehicle_type_id int [ref: > VehicleTypes.id]
+  holiday_rate_id int [ref: > HolidayRate.id]
+  zone_id int [ref: > Zone.id]
+  member_vehicle_id int [ref: > Vehicle.id]
+  rfid_card_id int [ref: > RfidCard.id]
+  fee_config_id int [ref: > FeeConfig.id]
+  created_at datetime
+  updated_at datetime
 }
 
 Table UserLoginLogs {
   id int [pk, increment]
   user_id int [ref: > Users.id]
   ip_address varchar
-  user_agent varchar
+  user_agent text
   attempt_type varchar
   success boolean
   failure_reason varchar
@@ -231,84 +244,54 @@ Table UserLoginStats {
   updated_at datetime
 }
 
+Table Users {
+  id int [pk, increment]
+  name varchar
+  email varchar
+  password_hash varchar
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+  role_id int [ref: > Role.id]
+}
+
 Table UserSession {
   id int [pk, increment]
-  user_id int
-  token_hash varchar
+  user_id int [ref: > Users.id]
+  refresh_token text
   ip_address varchar
-  user_agent varchar
+  user_agent text
   created_at datetime
   expires_at datetime
   revoked_at datetime
 }
 
-Table AuditLogs {
-  id uuid [pk]
-  EventType varchar
-  ActorRole varchar
-  TargetType varchar
-  TargetId uuid
-  BeforeState varchar
-  AfterState varchar
-  IpAddress varchar
-  UserAgent varchar
-  CreatedAt datetime
-  ActorId uuid
+Table Vehicle {
+  id int [pk, increment]
+  plate_number varchar
+  vehicle_type_id int [ref: > VehicleTypes.id]
+  source varchar
+  notes varchar
+  created_at datetime
+  updated_at datetime
 }
 
-Table AuditLogExports {
-  id uuid [pk]
-  ExportFormat varchar
-  FilePath varchar
-  DateRangeStart datetime
-  DateRangeEnd datetime
-  TotalRecords int
-  ExportStatus varchar
-  ExportedAt datetime
-  ExportedBy uuid
+Table VehicleTypes {
+  id int [pk, increment]
+  name varchar
+  minimum_fee int
+  description varchar
+  created_at datetime
 }
 
-Table OcrConfigs {
-  id uuid [pk]
-  CreatedBy uuid
-  AutoAcceptThreshold decimal
-  IsActive boolean
-  EffectiveFrom datetime
-  CreatedAt datetime
-}
-
-Table OcrResults {
-  id uuid [pk]
-  OcrJobId uuid
-  PlateDetected varchar
-  Confidence decimal
-  RawOutput varchar
-  VehicleId uuid
-  IsVerified boolean
-  VerifiedBy uuid
-  VerifiedAt datetime
-  CreatedAt datetime
-}
-
-Table OcrReviewLogs {
-  id uuid [pk]
-  ReviewedBy uuid
-  OcrResultId uuid
-  OcrPlate varchar
-  OcrConfidence decimal
-  ManualPlate varchar
-  Match boolean
-  ReviewNote varchar
-  ReviewedAt datetime
-}
-
-Table OverrideConfigs {
-  id uuid [pk]
-  EscalationNotifyUserId uuid
-  CreatedBy uuid
-  MaxOverridesPerDay int
-  MaxOverridesPerWeek int
-  IsActive boolean
-  CreatedAt datetime
-  UpdatedAt datetime
+Table Zone {
+  id int [pk, increment]
+  created_by varchar
+  name varchar
+  description varchar
+  additional_fee int
+  is_active boolean
+  created_at datetime
+  updated_at datetime
 }

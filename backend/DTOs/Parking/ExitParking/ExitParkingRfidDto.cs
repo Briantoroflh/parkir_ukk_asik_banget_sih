@@ -7,7 +7,8 @@ namespace backend.DTOs.Parking.ExitParking
 {
     public class ExitParkingRfidDto
     {
-        public string rfid { get; set; }
+        public string transaction_id { get; set; }
+        public int calculated_fee { get; set; }
         public string gate { get; set; }
     }
 }

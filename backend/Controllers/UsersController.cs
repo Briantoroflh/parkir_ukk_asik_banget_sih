@@ -112,6 +112,41 @@ namespace backend.Controllers
         }
 
         [Authorize]
+        [HttpGet("get-all")]
+        public async Task<ActionResult<IEnumerable<Users>>> GetAllUsers()
+        {
+            try
+            {
+                var query = @"SELECT id, name, email, is_active, role_id, created_at, updated_at, deleted_at FROM users ORDER BY id DESC";
+                var result = await _db.ToModel<Users>(_config, query);
+
+                if (result != null && result.Any())
+                {
+                    return Ok(new
+                    {
+                        status = true,
+                        message = "Data users ditemukan!",
+                        data = result
+                    });
+                }
+
+                return NotFound(new
+                {
+                    status = false,
+                    message = "Data users belum tersedia!"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = false,
+                    message = "Terjadi kesalahan server: " + ex.Message
+                });
+            }
+        }
+
+        [Authorize]
         [HttpGet("profile/{id}")]
         public async Task<ActionResult<Users>> Profile(int id)
         {
